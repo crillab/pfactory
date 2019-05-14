@@ -20,6 +20,8 @@ namespace pFactory{
         std::thread::hardware_concurrency();
     }
 
+  
+  
     Group::Group(unsigned int pnbThreads):
         testStop(false),
         idGroup(Group::groupCount++),

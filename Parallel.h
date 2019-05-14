@@ -23,7 +23,7 @@
 
 namespace pFactory{
     class Group; // Say Group exists without defining it.
-
+   
     unsigned int getNbCores();
     /* An instance of the class group represent :
         - a set of threads (std::thread*)
@@ -144,7 +144,28 @@ namespace pFactory{
 
     };
 
-    
+    template <class T=int>
+      class SafeQueue{
+    public:
+    explicit SafeQueue(){};
+    inline void push_back(T& ele){
+      mutex.lock();
+      queue.push_back(ele);
+      mutex.unlock();
+    };
+
+    /* Calling this function on an empty container causes undefined behavior. */
+    inline T& pop_back(){
+      mutex.lock();
+      T& ele = queue.back();
+      queue.pop_back();
+      mutex.unlock();
+      return ele;
+    };
+    private:
+    std::mutex mutex;
+    std::deque<T> queue;
+    };
 }
 
 #endif
