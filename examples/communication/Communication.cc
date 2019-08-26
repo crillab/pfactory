@@ -16,4 +16,5 @@ int main(int argc, char** argv){
   group->start();
   group->wait();
   delete group;
+  delete integerCommunicator;
 }

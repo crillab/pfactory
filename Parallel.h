@@ -18,6 +18,7 @@
 #include <condition_variable>
 #include <climits>
 #include <deque>
+#include <assert.h>
 
 #include "Barrier.h"
 
