@@ -13,7 +13,7 @@ namespace pFactory{
         public:
 
 	    Communicator(Group* g, T pemptyValue);
-	    ~Communicator();
+	    virtual ~Communicator();
             virtual void send(T data) = 0;
             virtual T recv(bool& isLast) = 0;
             virtual T recv() = 0;
@@ -39,14 +39,13 @@ namespace pFactory{
 
 
     class OrderPointer{
-        public:
-            explicit OrderPointer():next(NULL),previous(NULL),idThread(-1){};
-            explicit OrderPointer(int pidThread):next(NULL),previous(NULL),idThread(pidThread){};
+    public:
+    OrderPointer():next(NULL),previous(NULL),idThread(-1){};
+    OrderPointer(int pidThread):next(NULL),previous(NULL),idThread(pidThread){};
       
-      
-            OrderPointer* next;
-            OrderPointer* previous;
-            int idThread;
+      OrderPointer* next;
+      OrderPointer* previous;
+      int idThread;
     };
 
     template <class T>

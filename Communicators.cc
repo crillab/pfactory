@@ -5,6 +5,7 @@
 #include "Communicators.h"
 
 namespace pFactory{
+  
   template <class T>
   Communicator<T>::Communicator(Group* g, T pemptyValue):
     group(g),
@@ -13,7 +14,7 @@ namespace pFactory{
 
   template <class T>
   Communicator<T>::~Communicator() {
-    printf("delete communicator\n");
+
   }
 
   template <class T>
@@ -64,9 +65,13 @@ namespace pFactory{
 
   template <class T>
   MultipleQueuesCommunicator<T>::~MultipleQueuesCommunicator(){
-    printf("Delete multipleQueuesCommunicator\n");
+    for(unsigned int i=0;i<nbThreads;i++){
+	std::vector<OrderPointer*>& ordersPointer=threadOrdersPointer[i];
+	delete threadOrdersPointerStart[i];
+	for(unsigned int j=0;j<nbThreads;j++)delete ordersPointer[j];
+	delete threadOrdersPointerEnd[i];
+    }
   }
-
 }
 
 
