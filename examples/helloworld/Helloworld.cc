@@ -2,7 +2,6 @@
 #include "../../Parallel.h"
 
 int main(int argc, char** argv){
-  std::vector<Solver*> solvers;
   pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());
   
   for(int i = 0; i < pFactory::getNbCores();i++){
@@ -13,4 +12,5 @@ int main(int argc, char** argv){
   }
   group->start();
   group->wait();
+  delete group;
 }

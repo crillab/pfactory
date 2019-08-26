@@ -38,8 +38,13 @@ namespace pFactory{
             \return An instance of group
             */
             Group(unsigned int pnbThreads);
-         
-
+	    ~Group() {
+	      delete startedBarrier;
+	      delete waitingThreads;
+	      for (unsigned int i = 0;i<nbThreads;i++)
+		delete threads[i];
+	    } 
+	    
             /* Add a task to this group of threads
             \param function the task using C++11 lambdas
             */

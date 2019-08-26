@@ -30,7 +30,10 @@ namespace pFactory{
         concurrent(false),
         winnerConcurrentThreads(UINT_MAX),
         winnerConcurrentReturnCode(UINT_MAX),
-        winnerConcurrentTask(UINT_MAX)
+        winnerConcurrentTask(UINT_MAX),
+	startedBarrier(NULL),
+	waitingThreads(NULL)
+	
     {
         startedBarrier = new Barrier(pnbThreads+1);
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
