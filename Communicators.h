@@ -1,6 +1,8 @@
 #ifndef communicators_H
 #define	communicators_H
 
+#include <assert.h>
+
 namespace pFactory{
     struct BaseCommunicator {};
 
