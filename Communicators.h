@@ -49,10 +49,11 @@ namespace pFactory{
             int idThread;
     };
 
-    template <class T=int>
+    template <class T>
       class MultipleQueuesCommunicator : public Communicator<T> {
     public:
 
+    
     MultipleQueuesCommunicator(Group* g, T pemptyValue);
     ~MultipleQueuesCommunicator();
     
@@ -341,4 +342,5 @@ namespace pFactory{
     
 
 }
+
 #endif

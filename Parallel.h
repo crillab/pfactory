@@ -174,4 +174,5 @@ namespace pFactory{
     };
 }
 
+#include "Communicators.cc"
 #endif

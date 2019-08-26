@@ -1,6 +1,6 @@
 
 #include "../../Parallel.h"
-#include "../../Communicators.h"
+
 
 int main(int argc, char** argv){
   pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());
