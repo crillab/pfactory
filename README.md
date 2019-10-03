@@ -53,8 +53,8 @@ int main(int argc, char** argv){
   
   for(int i = 0; i < pFactory::getNbCores();i++){
     group->add([=](){
-	printf("Hello world of %d\n",i);
-	return 0;
+	      printf("Hello world of %d\n",i);
+	      return 0;
       });
   }
   group->start();
@@ -78,17 +78,17 @@ int main(int argc, char** argv){
   
   for(int i = 0; i < pFactory::getNbCores();i++){
     group->add([=](){
-	integerCommunicator->send(i);
-	std::vector<int> data;
-	integerCommunicator->recvAll(data);
-	m->lock();
-	std::cout << "Thread " << i << " :";	
-	for(int i=0; i<data.size(); ++i)
-	  std::cout << data[i] << ' ';
-	std::cout << std::endl;
-	m->unlock();
-	return 0;
-      });
+      integerCommunicator->send(i);
+      std::vector<int> data;
+      integerCommunicator->recvAll(data);
+      m->lock();
+      std::cout << "Thread " << i << " :";	
+      for(int i=0; i<data.size(); ++i)
+        std::cout << data[i] << ' ';
+      std::cout << std::endl;
+      m->unlock();
+      return 0;
+    });
   }
   group->start();
   group->wait();
