@@ -5,7 +5,7 @@ sudo apt install g++
 sudo apt install build-essential
 ```
 
-In the directory pFactory, to create the library libpFactory.a:$
+In the directory pFactory, to create the library libpFactory.a:
 ```console
 make -j 
 ```
