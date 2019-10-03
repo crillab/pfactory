@@ -28,11 +28,17 @@ clean:
 	rm -rf helloworld *.o
 ```
 
+The main method of pFactory is the constructor ```cpp pFactory::Group(unsigned int nbThreads)``` which create a Group object.  
+An instance of the class group represent :
+  - a set of threads ```cpp (std::thread*) ```
+  - a set of tasks ```cpp std::function<int()> ```
+  
+
 # Examples
 
 ## Example 1: Hello World
 
-```cpp
+```make
 #include "../../pFactory.h" #This path can changed in your project
 
 int main(int argc, char** argv){
