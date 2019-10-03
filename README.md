@@ -1,7 +1,11 @@
-# Install
+# Install on Ubuntu
 
-In the directory pFactory, to create the library libpFactory.a:
+```console
+sudo apt install g++
+sudo apt install build-essential
+```
 
+In the directory pFactory, to create the library libpFactory.a:$
 ```console
 make -j 
 ```
@@ -9,7 +13,7 @@ make -j
 # User Manual
 
 In the compilation of your project, add a link to pFactory.
-Example of a makefile for the Hello World example:
+Makefile for the Hello World example:
 
 ```make
 LFLAGS    = -L../../ -lpFactory -lpthread
