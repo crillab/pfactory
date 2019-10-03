@@ -12,7 +12,18 @@ make -j
 
 # User Manual
 
-In the compilation of your project, add a link to pFactory.
+First, include in your c++ code the library. The main method of pFactory is the constructor ```pFactory::Group(unsigned int nbThreads)``` which create a Group object. An instance of the class group represent :
+  - a set of threads ```std::thread```
+  - a set of tasks ```std::function<int()>```
+
+Tasks are added thanks to the method ```Group::add(std::function<int()> function)``` using C++11 lambdas and are launched by the method ```Group::start(bool concurrent=false)```. Of course, we can have more tasks than threads and in this case, a queue of work is created and all tasks are executed. To finish, the method ```Group::wait()```  waits that all tasks are completed (only one if the concurrent mode is activated in the method ```start```) and join all threads. pFactory allows also to deal with communications between tasks and include a new effective communication algorithm. More explanations are given in the paper:
+
+pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019), To appear.
+Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
+
+Do not hesite to contact szczepanski.nicolas@gmail.com if you encounter any problem with pFactory.
+
+Do not forget to add a link to pFactory in the compilation of your project.
 Makefile for the Hello World example:
 
 ```make
@@ -28,11 +39,7 @@ clean:
 	rm -rf helloworld *.o
 ```
 
-The main method of pFactory is the constructor ```pFactory::Group(unsigned int nbThreads)``` which create a Group object.  
-An instance of the class group represent :
-  - a set of threads ```(std::thread*) ```
-  - a set of tasks ```std::function<int()> ```
-  
+
 
 # Examples
 
