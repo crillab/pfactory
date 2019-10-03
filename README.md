@@ -64,7 +64,7 @@ int main(int argc, char** argv){
 ```
 
 
-## Example : Communications
+## Example 2 : Communications
 
 ```cpp
 #include "../../pFactory.h" #This path can changed in your project
