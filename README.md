@@ -28,10 +28,10 @@ clean:
 	rm -rf helloworld *.o
 ```
 
-The main method of pFactory is the constructor ```cpp pFactory::Group(unsigned int nbThreads)``` which create a Group object.  
+The main method of pFactory is the constructor ```pFactory::Group(unsigned int nbThreads)``` which create a Group object.  
 An instance of the class group represent :
-  - a set of threads ```cpp (std::thread*) ```
-  - a set of tasks ```cpp std::function<int()> ```
+  - a set of threads ```(std::thread*) ```
+  - a set of tasks ```std::function<int()> ```
   
 
 # Examples
