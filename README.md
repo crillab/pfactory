@@ -21,7 +21,7 @@ Tasks are added thanks to the method ```Group::add(std::function<int()> function
 pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019), To appear.
 Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
 
-Do not hesite to contact szczepanski.nicolas@gmail.com if you encounter any problem with pFactory.
+Do not hesitate to contact szczepanski.nicolas@gmail.com if you encounter any problem with pFactory.
 
 Do not forget to add a link to pFactory in the compilation of your project.
 Makefile for the Hello World example:
