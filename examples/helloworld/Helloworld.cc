@@ -1,5 +1,5 @@
 
-#include "../../Parallel.h"
+#include "../../pFactory.h"
 
 int main(int argc, char** argv){
   pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());

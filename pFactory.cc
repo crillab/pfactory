@@ -1,5 +1,5 @@
 
-#include "Parallel.h"
+#include "pFactory.h"
 #include "Barrier.h"
 
 #include <iostream>

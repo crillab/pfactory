@@ -1,7 +1,7 @@
 #ifndef communicators_C
 #define	communicators_C
 
-#include "Parallel.h"
+#include "pFactory.h"
 #include "Communicators.h"
 
 namespace pFactory{

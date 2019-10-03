@@ -1,9 +1,9 @@
 
-libpFactory.a: Parallel.o Communicators.o
-	ar rcs libpFactory.a Parallel.o Communicators.o
+libpFactory.a: pFactory.o Communicators.o
+	ar rcs libpFactory.a pFactory.o Communicators.o
 
-Parallel.o: Parallel.cc Parallel.h
-	g++ -std=c++14 -O3 -c Parallel.cc
+pFactory.o: pFactory.cc pFactory.h
+	g++ -std=c++14 -O3 -c pFactory.cc
 
 Communicators.o: Communicators.cc Communicators.h
 	g++ -std=c++14 -O3 -c Communicators.cc
