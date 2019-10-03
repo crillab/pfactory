@@ -45,7 +45,7 @@ clean:
 
 ## Example 1: Hello World
 
-```make
+```cpp
 #include "../../pFactory.h" #This path can changed in your project
 
 int main(int argc, char** argv){
