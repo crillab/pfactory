@@ -1,9 +1,19 @@
-*.*~
-*.o
-*.op
-*.od
-*.or
-*box*
-*depend.mk
-#*.*
-*.*#
+# Autotools generated files
+
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+config.log
+config.status
+config/
+configure
+src/.deps/
+src/config.h
+src/config.h.in
+src/stamp-h1
+
+# Binaries
+
+*.[ao]
+
