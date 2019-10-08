@@ -8,7 +8,7 @@ config.log
 config.status
 config/
 configure
-src/.deps/
+.deps/
 src/config.h
 src/config.h.in
 src/stamp-h1
@@ -16,4 +16,11 @@ src/stamp-h1
 # Binaries
 
 *.[ao]
+examples/communication/communication
+examples/helloworld/helloworld
+examples/safeQueue/safeQueue
+lib/
+
+# Editor generated files
+*~
 

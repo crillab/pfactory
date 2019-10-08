@@ -1,0 +1,2 @@
+SUBDIRS = communication helloworld safeQueue
+

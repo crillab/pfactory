@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -Wall -Wextra -Werror -O3
+AM_CPPFLAGS = -Wall -Wextra -Werror -std=c++11
 
 noinst_LIBRARIES = $(top_builddir)/lib/libpFactory.a
 

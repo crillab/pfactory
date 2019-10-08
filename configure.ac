@@ -6,14 +6,19 @@ VERSION=0.1
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADER([src/config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE(subdir-objects)
 
 AC_PROG_CC
-dnl : ${CXXFLAGS= -std=c++11 -O3}
+: ${CXXFLAGS= -O3}
 AC_PROG_CXX
 
 AC_PROG_RANLIB
 
-AC_OUTPUT(Makefile src/Makefile)
+AX_PTHREAD
+LIBS="$PTHREAD_LIBS $LIBS"
+CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+
+AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/safeQueue/Makefile examples/communication/Makefile)
 
