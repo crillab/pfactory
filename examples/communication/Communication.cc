@@ -1,21 +1,21 @@
 
-#include "../../Parallel.h"
+#include "pFactory.h"
 #include <mutex>
 
-int main(int argc, char** argv){
+int main(){
   pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());
   pFactory::Communicator<int>* integerCommunicator
     = new pFactory::MultipleQueuesCommunicator<int>(group, 0);
   std::mutex* m = new std::mutex();
   
-  for(int i = 0; i < pFactory::getNbCores();i++){
+  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     group->add([=](){
 	integerCommunicator->send(i);
 	std::vector<int> data;
 	integerCommunicator->recvAll(data);
 	m->lock();
 	std::cout << "Thread " << i << " :";	
-	for(int i=0; i<data.size(); ++i)
+	for(unsigned int i=0; i<data.size(); ++i)
 	  std::cout << data[i] << ' ';
 	std::cout << std::endl;
 	m->unlock();
