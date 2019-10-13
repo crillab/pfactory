@@ -55,7 +55,8 @@ namespace pFactory{
     {
         startedBarrier = new Barrier(pnbThreads+1);
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
-        printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
+        if(VERBOSE)
+            printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
 
     void Group::reload(){
@@ -74,14 +75,17 @@ namespace pFactory{
         //Tasks
         tasks.clear();
         for (auto task : tasksSave)tasks.push_back(task);
-        printf("c [pFactory][Group N°%d] reload (threads:%d).\n",idGroup,nbThreads);
+        if(VERBOSE)
+            printf("c [pFactory][Group N°%d] reload (threads:%d).\n",idGroup,nbThreads);
     }
     
 
     void Group::start(bool pconcurrent){
         concurrent=pconcurrent;
-        printf("c [pFactory][Group N°%d] concurrent mode: %s.\n",idGroup,concurrent?"enabled":"disabled");
-        printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
+        if(VERBOSE) {
+            printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrent ? "enabled" : "disabled");
+            printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int) tasks.size());
+        }
         startedBarrier->wait();
         
     }
@@ -90,18 +94,21 @@ namespace pFactory{
         tasks.push_back(function);
 	returnCodes.push_back(-1);
         tasksSave.push_back(function);
-        printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
+        if(VERBOSE)
+            printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
     }
 
     int Group::wait(){
         for(unsigned int i = 0; i < nbThreads; i++){
             if(threads[i]->joinable()){
                 threads[i]->join();
-                printf("c [pFactory][Group N°%d] Thread N°%d is joined.\n",idGroup,i);
+                if(VERBOSE)
+                    printf("c [pFactory][Group N°%d] Thread N°%d is joined.\n",idGroup,i);
             }
         }
 	if(concurrent){
-	  printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winnerConcurrentReturnCode,winnerConcurrentThreads);
+	  if(VERBOSE)
+	      printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winnerConcurrentReturnCode,winnerConcurrentThreads);
 	  return winnerConcurrentReturnCode;
 	}
 	return 0;
@@ -151,7 +158,8 @@ namespace pFactory{
             nbLaunchedTasks++;
             tasksLock.unlock();
             //Launch a task  
-            printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",idGroup,idTask,num);
+            if(VERBOSE)
+                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",idGroup,idTask,num);
             int returnCode = function();  
 	    returnCodes[idTask] = returnCode;
             //We have kill all others threads ! 
@@ -161,7 +169,8 @@ namespace pFactory{
                 winnerConcurrentReturnCode=returnCode;
                 winnerConcurrentTask=idTask;
                 stop();
-                printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",idGroup,num,idTask);
+                if(VERBOSE)
+                    printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",idGroup,num,idTask);
                 return;
 
             }
