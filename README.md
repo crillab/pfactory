@@ -1,9 +1,19 @@
-# Install on Ubuntu
+# pFactory: 
+pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
+parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
+pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
 
-```console
-sudo apt install g++
-sudo apt install build-essential
-```
+To make user-friendly the usage of communications, our library contains an object called Communicator<T> using templates.
+Using such object, it is possible to share any kind of informations (vector, int...): 
+
+More informations are given in the following paper:
+
+pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019), To appear.
+Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
+
+
+# Installation instructions
+
 
 In the directory pFactory, to create the library libpFactory.a:
 ```console
@@ -18,10 +28,7 @@ First, include in your c++ code the library. The main method of pFactory is the 
 
 Tasks are added thanks to the method ```Group::add(std::function<int()> function)``` using C++11 lambdas and are launched by the method ```Group::start(bool concurrent=false)```. Of course, we can have more tasks than threads and in this case, a queue of work is created and all tasks are executed. To finish, the method ```Group::wait()```  waits that all tasks are completed (only one if the concurrent mode is activated in the method ```start```) and join all threads. pFactory allows also to deal with communications between tasks and include a new effective communication algorithm. More explanations are given in the paper:
 
-pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019), To appear.
-Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
 
-Do not hesitate to contact szczepanski.nicolas@gmail.com if you encounter any problems with pFactory.
 
 Do not forget to add a link to pFactory in the compilation of your project.
 Makefile for the Hello World example:
@@ -97,3 +104,12 @@ int main(int argc, char** argv){
   delete m;
 }
 ```
+
+## Example 3
+You can also [download]() an implementation of the [SAT solver glucose](https://www.labri.fr/perso/lsimon/glucose/) in parallel mode (aka named syrup)
+using the library pFacory. Such implementation integrates clauses sharing mechanism.
+
+
+
+## contact
+Do not hesitate to contact szczepanski.nicolas@gmail.com if you encounter any problems with pFactory.
