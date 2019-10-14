@@ -16,7 +16,8 @@ Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicol
 ## Installation instructions
 
 ### Dependencies
-This libary needs: 
+This libary needs:
+ - autoreconf (package autoconf)
  - C++11
  - pthread library
 
@@ -25,7 +26,7 @@ This libary needs:
 
 In the directory pFactory, to create the library libpFactory.a:
 ```console
-make -j 
+./bootstrap
 ```
 
 ## User Manual
