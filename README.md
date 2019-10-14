@@ -35,6 +35,8 @@ In the directory pFactory:
 make
 ```
 
+The created library ```console libpFactory.a``` is in the directory ```console lib/```
+
 ## User Manual
 
 The main method of pFactory is the constructor ```pFactory::Group(unsigned int nbThreads)``` which create a Group object. 
