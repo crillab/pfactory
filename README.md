@@ -35,7 +35,7 @@ In the directory pFactory:
 make
 ```
 
-The created library ```console libpFactory.a``` is in the directory ```console lib/```
+The created library ```libpFactory.a``` is in the directory ```lib/```
 
 ## User Manual
 
