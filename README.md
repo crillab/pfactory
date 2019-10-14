@@ -24,7 +24,7 @@ This libary needs:
 ### Installation 
  
 
-In the directory pFactory, to create the library libpFactory.a:
+In the directory pFactory:
 ```console
 ./bootstrap
 ```
@@ -124,5 +124,5 @@ using the library pFacory. Such implementation integrates clauses sharing mechan
 
 
 
-## contact
+## Contact
 Do not hesitate to contact szczepanski.nicolas@gmail.com if you encounter any problems with pFactory.
