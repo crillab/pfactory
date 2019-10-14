@@ -68,20 +68,18 @@ between threads. To this end:
 ### Example 1: Hello World
 
 ```cpp
-#include "pFactory.h" 
+#include "pFactory.h"
 
-int main(int argc, char** argv){
-  pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());
-  
-  for(int i = 0; i < pFactory::getNbCores();i++){
-    group->add([=](){
+int main(){
+  pFactory::Group group(pFactory::getNbCores());
+  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
+    group.add([=](){
 	      printf("Hello world of %d\n",i);
 	      return 0;
       });
   }
-  group->start();
-  group->wait();
-  delete group;
+  group.start();
+  group.wait();
 }
 ```
 
@@ -89,34 +87,31 @@ int main(int argc, char** argv){
 ### Example 2 : Communications
 
 ```cpp
-#include "pFactory.h" 
+#include "pFactory.h"
 #include <mutex>
 
-int main(int argc, char** argv){
-  pFactory::Group* group = new pFactory::Group(pFactory::getNbCores());
-  pFactory::Communicator<int>* integerCommunicator
-    = new pFactory::MultipleQueuesCommunicator<int>(group, 0);
-  std::mutex* m = new std::mutex();
+int main(){
+  pFactory::Group group(pFactory::getNbCores());
+  pFactory::Communicator<int>* integerCommunicator = new pFactory::MultipleQueuesCommunicator<int>(&group, 0);
+  std::mutex m;
   
-  for(int i = 0; i < pFactory::getNbCores();i++){
-    group->add([=](){
+  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
+    group.add([&](){
       integerCommunicator->send(i);
       std::vector<int> data;
       integerCommunicator->recvAll(data);
-      m->lock();
+      m.lock();
       std::cout << "Thread " << i << " :";	
-      for(int i=0; i<data.size(); ++i)
+      for(unsigned int i=0; i<data.size(); ++i)
         std::cout << data[i] << ' ';
       std::cout << std::endl;
-      m->unlock();
+      m.unlock();
       return 0;
-    });
+      });
   }
-  group->start();
-  group->wait();
-  delete group;
+  group.start();
+  group.wait();
   delete integerCommunicator;
-  delete m;
 }
 ```
 
