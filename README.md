@@ -28,6 +28,12 @@ In the directory pFactory, to create the library libpFactory.a:
 ```console
 ./bootstrap
 ```
+```console
+./configure
+```
+```console
+make
+```
 
 ## User Manual
 
