@@ -20,12 +20,11 @@
 
 int main(){
   pFactory::Group group(pFactory::getNbCores());
-  
   pFactory::Communicator<int>* integerCommunicator = new pFactory::MultipleQueuesCommunicator<int>(&group, 0);
   std::mutex m;
   
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
-    group.add([&i, &m, &integerCommunicator](){
+    group.add([&](){
       integerCommunicator->send(i);
       std::vector<int> data;
       integerCommunicator->recvAll(data);
