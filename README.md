@@ -70,15 +70,23 @@ between threads. To this end:
 ```cpp
 #include "pFactory.h"
 
-int main(){
+// In this example, we create a group of thread saying hello world
+
+int main()
+{
+  // A group of nbCores threads
   pFactory::Group group(pFactory::getNbCores());
-  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
-    group.add([=](){
-	      printf("Hello world of %d\n",i);
-	      return 0;
-      });
+  for (unsigned int i = 0; i < pFactory::getNbCores(); i++)
+  {
+    // Add as many tasks as threads in the group
+    group.add([=]() {
+      printf("Hello world of thread (or task) %d\n", i);
+      return 0;
+    });
   }
+  // Start the computation of all tasks
   group.start();
+  // Wait until all threads are performed all tasks
   group.wait();
 }
 ```
@@ -90,28 +98,45 @@ int main(){
 #include "pFactory.h"
 #include <mutex>
 
-int main(){
-  pFactory::Group group(pFactory::getNbCores());
-  pFactory::Communicator<int>* integerCommunicator = new pFactory::MultipleQueuesCommunicator<int>(&group, 0);
-  std::mutex m;
-  
-  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
-    group.add([&](){
-      integerCommunicator->send(i);
-      std::vector<int> data;
-      integerCommunicator->recvAll(data);
-      m.lock();
-      std::cout << "Thread " << i << " :";	
-      for(unsigned int i=0; i<data.size(); ++i)
-        std::cout << data[i] << ' ';
-      std::cout << std::endl;
-      m.unlock();
-      return 0;
-      });
-  }
-  group.start();
-  group.wait();
-  delete integerCommunicator;
+// In this example, each thread share an integer to the others.
+// The mutex is used only for displaying data in a smart way.
+// Of course, on classical usage, this mutex is useless, you
+// can directly share and receive data
+
+int main()
+{
+    // A group of nbCores threads
+    pFactory::Group group(pFactory::getNbCores());
+    pFactory::MultipleQueuesCommunicator<int> integerCommunicator(&group);
+    std::mutex m;
+
+    for (unsigned int i = 0; i < pFactory::getNbCores(); i++)
+    {
+        // Add as many tasks as threads in the group
+        group.add([&, i]() {
+            // Send a random number
+            m.lock();
+            int nb = rand() % 101;
+            std::cout << "Thread (or task)" << i << " sends: " << nb << std::endl;
+            integerCommunicator.send(nb);
+            m.unlock();
+
+            //Receive and display all numbers of others threads
+            std::vector<int> data;
+            integerCommunicator.recvAll(data);
+            m.lock();
+            std::cout << "Thread (or task)" << i << " receives:";
+            for (unsigned int j = 0; j < data.size(); ++j)
+                std::cout << data[j] << ' ';
+            std::cout << std::endl;
+            m.unlock();
+            return 0;
+        });
+    }
+    // Start the computation of all tasks
+    group.start();
+    // Wait until all threads are performed all tasks
+    group.wait();
 }
 ```
 
