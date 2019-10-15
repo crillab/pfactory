@@ -36,7 +36,7 @@ int main() {
             // Send a random number 
             m.lock();
             int nb = rand() % 101;
-            std::cout << "Thread (or task)" << i << " sends: " << nb << std::endl;
+            std::cout << "Task" << i << " sends: " << nb << std::endl;
             integerCommunicator.send(nb);
             m.unlock();
 
@@ -44,7 +44,7 @@ int main() {
             std::vector<int> data;
             integerCommunicator.recvAll(data);
             m.lock();
-            std::cout << "Thread (or task)" << i << " receives:";
+            std::cout << "Task" << i << " receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 std::cout << data[j] << ' ';
             std::cout << std::endl;

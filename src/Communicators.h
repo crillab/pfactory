@@ -276,7 +276,7 @@ public:
 	}
 
 	/* Receive only one data 
-       \return A std::pair(boool isEmpty, T value) emptyValue is True if no element is found, is this case, value take the default value of the compiler
+       \return A std::pair(boool isEmpty, T value) isEmpty is True if no element is found, is this case, value take the default value of the compiler
     */
 	inline std::pair<bool, T> recv()
 	{

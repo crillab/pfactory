@@ -28,9 +28,7 @@ In the directory pFactory:
 ```console
 ./bootstrap
 ```
-```console
-./configure
-```
+
 ```console
 make
 ```
@@ -54,11 +52,16 @@ and join all threads.
 The library contains an efficient sharing mechanism.
 Once the group object created, you can link a communicator that is in charge of the communication 
 between threads. To this end: 
-- Create a communicator (in this example, the communicator can share integers between thraeds): 
-``` pFactory::Communicator<int>* integerCommunicator    = new pFactory::MultipleQueuesCommunicator<int>(group);```. 
-    Variable ```group``` is an  instance of ````Factory::Group``` object defined above. 
-- Send int to other threads using the method ```send```:
-- Receive integers from other threads using the method ```recAll```. 
+- Create a communicator (in this example, the communicator can share integers between threads): 
+``` pFactory::Communicator<int>* integerCommunicator(&group);```. 
+    Variable ```group``` is an  instance of ```Factory::Group``` object defined above. 
+- Send int to other threads using the method ```send(int)```:
+-   Receive integers from other threads. Two methods achieve this task:
+    - using the method ```void recAll(std::vector<int> &data)```. 
+    In this case, the vector data receives all data.
+    - using the method ```std::pair<bool, int> recv();```. In this case, one can receive
+    data one by one. The first element of the pair becomes true if there is 
+    no more data to receive. 
 
 
 
@@ -115,7 +118,7 @@ int main()
         // Add as many tasks as threads in the group
         group.add([&, i]() {
             // Send a random number
-            m.lock();
+            m.lock(); // Only to be able to display data in a smart way
             int nb = rand() % 101;
             std::cout << "Thread (or task)" << i << " sends: " << nb << std::endl;
             integerCommunicator.send(nb);
@@ -124,7 +127,7 @@ int main()
             //Receive and display all numbers of others threads
             std::vector<int> data;
             integerCommunicator.recvAll(data);
-            m.lock();
+            m.lock(); // Only to be able to display data in a smart way
             std::cout << "Thread (or task)" << i << " receives:";
             for (unsigned int j = 0; j < data.size(); ++j)
                 std::cout << data[j] << ' ';
@@ -145,13 +148,13 @@ You can also [download]() an implementation of the [SAT solver glucose](https://
 using the library pFacory. Such implementation integrates clauses sharing mechanism.
 
 
-## AUTHORS:
+## AUTHORS
 
-Main author: 
+Main author
  - Nicolas Szczepanski - szczepanski.nicolas@gmail.com
 
 
-Contributors
+Other contributors
  - Gilles Audemard - audemard@cril.fr
  - Gael Glorian - glorian@cril.fr
  - Jean-Marie Lagniez - jmlagniez@gmail.com
