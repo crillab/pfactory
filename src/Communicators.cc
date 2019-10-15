@@ -24,9 +24,8 @@
 namespace pFactory{
   
   template <class T>
-  Communicator<T>::Communicator(Group* g, T pemptyValue):
+  Communicator<T>::Communicator(Group* g):
     group(g),
-    emptyValue(pemptyValue),
     oneWatchs(false){};
 
   template <class T>
@@ -35,8 +34,8 @@ namespace pFactory{
   }
 
   template <class T>
-  MultipleQueuesCommunicator<T>::MultipleQueuesCommunicator(Group* g, T pemptyValue):
-    Communicator<T>(g,pemptyValue),
+  MultipleQueuesCommunicator<T>::MultipleQueuesCommunicator(Group* g):
+    Communicator<T>(g),
     nbThreads(g->getNbThreads()),
     threadMutexs(g->getNbThreads()),
     vectorOfQueues(g->getNbThreads()),

@@ -25,22 +25,26 @@
 // can directly share and receive data
 
 int main() {
+    // A group of nbCores threads 
     pFactory::Group group(pFactory::getNbCores());
-    pFactory::Communicator<int> *integerCommunicator = new pFactory::MultipleQueuesCommunicator<int>(&group, 0);
+    pFactory::MultipleQueuesCommunicator<int> integerCommunicator(&group);
     std::mutex m;
 
     for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
+        // Add as many tasks as threads in the group
         group.add([&, i]() {
+            // Send a random number 
             m.lock();
             int nb = rand() % 101;
-            std::cout << "Thread " << i << " sends: " << nb << std::endl;
-            integerCommunicator->send(nb);
+            std::cout << "Thread (or task)" << i << " sends: " << nb << std::endl;
+            integerCommunicator.send(nb);
             m.unlock();
 
+            //Receive and display all numbers of others threads
             std::vector<int> data;
-            integerCommunicator->recvAll(data);
+            integerCommunicator.recvAll(data);
             m.lock();
-            std::cout << "Thread " << i << " receives:";
+            std::cout << "Thread (or task)" << i << " receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 std::cout << data[j] << ' ';
             std::cout << std::endl;
@@ -48,7 +52,8 @@ int main() {
             return 0;
         });
     }
+    // Start the computation of all tasks
     group.start();
+    // Wait until all threads are performed all tasks 
     group.wait();
-    delete integerCommunicator;
 }

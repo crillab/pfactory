@@ -23,4 +23,5 @@ lib/
 
 # Editor generated files
 *~
+.vscode/
 
