@@ -21,13 +21,17 @@
 // In this example, we create a group of thread saying hello world
 
 int main(){
+  // A group of nbCores threads 
   pFactory::Group group(pFactory::getNbCores());
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
+    // Add as many tasks as threads in the group
     group.add([=](){
-	      printf("Hello world of %d\n",i);
+	      printf("Hello world of thread (or task) %d\n",i);
 	      return 0;
       });
   }
+  // Start the computation of all tasks
   group.start();
+  // Wait until all threads are performed all tasks 
   group.wait();
 }
