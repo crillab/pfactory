@@ -17,6 +17,9 @@
  */
 #include "pFactory.h"
 
+
+// In this example, we create a group of thread saying hello world
+
 int main(){
   pFactory::Group group(pFactory::getNbCores());
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){

@@ -122,4 +122,4 @@ using the library pFacory. Such implementation integrates clauses sharing mechan
 
 
 ## Contact
-Do not hesitate to contact szczepanski.nicolas@gmail.com if you encounter any problems with pFactory.
+Do not hesitate to contact pfactory@cril.fr if you encounter any problems with pFactory.

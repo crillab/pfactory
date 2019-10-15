@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT(pFactory, 3.0, szczepanski.nicolas@gmail.com)
+AC_INIT(pFactory, 3.0, pfactory@cril.fr)
 
 PACKAGE=pFactory
 VERSION=0.1
@@ -20,5 +20,5 @@ AX_PTHREAD
 LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
 
-AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/safeQueue/Makefile examples/communication/Makefile)
+AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/communication/Makefile)
 
