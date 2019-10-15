@@ -120,6 +120,19 @@ You can also [download]() an implementation of the [SAT solver glucose](https://
 using the library pFacory. Such implementation integrates clauses sharing mechanism.
 
 
+## AUTHORS:
+
+Main author: 
+ - Nicolas Szczepanski - szczepanski.nicolas@gmail.com
+
+
+Contributors
+ - Gilles Audemard - audemard@cril.fr
+ - Gael Glorian - glorian@cril.fr
+ - Jean-Marie Lagniez - jmlagniez@gmail.com
+ - Valentin Montmirail - valentin.montmirail@gmail.com
+
+
 
 ## Contact
 Do not hesitate to contact pfactory@cril.fr if you encounter any problems with pFactory.
