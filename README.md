@@ -83,7 +83,7 @@ int main()
   {
     // Add as many tasks as threads in the group
     group.add([=]() {
-      printf("Hello world of thread (or task) %d\n", i);
+	      printf("Task %d says hello world\n",i);
       return 0;
     });
   }
