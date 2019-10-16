@@ -18,7 +18,7 @@ AC_PROG_RANLIB
 
 AX_PTHREAD
 LIBS="$PTHREAD_LIBS $LIBS"
-CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+CXXFLAGS="$CXXFLAGS -I$PWD/include $PTHREAD_CFLAGS"
 
 AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/communication/Makefile)
 

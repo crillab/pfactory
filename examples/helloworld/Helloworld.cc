@@ -26,7 +26,7 @@ int main(){
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     // Add as many tasks as threads in the group
     group.add([=](){
-	      printf("Hello world of thread (or task) %d\n",i);
+	      printf("Task %d says hello world\n",i);
 	      return 0;
       });
   }

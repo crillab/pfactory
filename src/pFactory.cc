@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pFactory.h"
-#include "Barrier.h"
+#include "../include/Barrier.h"
 
 #include <iostream>
 #include <mutex>
