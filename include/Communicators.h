@@ -34,8 +34,8 @@ public:
 	Communicator(Group *g);
 	virtual ~Communicator();
 	virtual void send(T data) = 0;
-	virtual std::pair<bool, T> recv(bool &isLast) = 0;
-	virtual std::pair<bool, T> recv() = 0;
+	virtual bool recv(T &data, bool &isLast) = 0;
+	virtual bool recv(T &data) = 0;
 	virtual bool isEmpty() = 0;
 	virtual void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast) = 0;
 	virtual void recvAll(std::vector<T> &data) = 0;
@@ -275,20 +275,22 @@ public:
 		nbRecvAll[threadId]++;
 	}
 
-	/* Receive only one data 
-       \return A std::pair(boool isEmpty, T value) isEmpty is True if no element is found, is this case, value take the default value of the compiler
+	/* Receive only one data
+	   \param data received
+       \return false  if no element is found, true otherwise
     */
-	inline std::pair<bool, T> recv()
+	inline bool recv(T& data)
 	{
 		bool nothing = false;
-		return recv(nothing);
+		return recv(data, nothing);
 	}
 
 	/* Receive only one data 
+	    \param data received
 		\param isLast true if this thread is the last to recuperate the data T (ie. others have already received the data T)
-		\return A std::pair(boool isEmpty, T value) emptyValue is True if no element is found, is this case, value take the default value of the compiler
+       \return false  if no element is found, true otherwise
 	*/
-	inline std::pair<bool, T> recv(bool &isLast)
+	inline bool recv(T& data, bool &isLast)
 	{
 
 		const unsigned int threadId = this->group->getThreadId();
@@ -313,7 +315,7 @@ public:
 				}
 				//Recuperate the data and increment the queuePointer of the thread
 				unsigned int positionRet = queuePointer[threadId];
-				T ret = deque[queuePointer[threadId]++];
+				data = deque[queuePointer[threadId]++];
 				//Update the minWatch (usefull to know data to pop)
 				minQueuePointer = INT_MAX;
 				for (; i < nbThreads; i++)
@@ -337,11 +339,10 @@ public:
 				//printf("Recuperate %d from %d\n",ret,threadId);
 				nbRecv[threadId]++;
 				mutex.unlock();
-				return std::make_pair(false, ret);
+				return true;
 			}
 		}
-		T ret{};
-		return std::make_pair(true, ret);
+		return false;
 	}
 
 	inline unsigned int getNbSend()
