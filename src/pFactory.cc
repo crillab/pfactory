@@ -17,7 +17,6 @@
  */
 #include "pFactory.h"
 #include "../include/Barrier.h"
-
 #include <iostream>
 #include <mutex>
 #include <chrono>

@@ -39,6 +39,7 @@
 
 #include "Barrier.h"
 
+
 #define VERBOSE 0
 namespace pFactory{
     class Group; // Say Group exists without defining it.
@@ -191,5 +192,5 @@ namespace pFactory{
     std::deque<T> queue;
     };
 }
-
+#include "Communicators.cc"
 #endif
