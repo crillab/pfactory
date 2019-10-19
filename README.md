@@ -156,9 +156,7 @@ Main author
 
 Other contributors
  - Gilles Audemard - audemard@cril.fr
- - Gael Glorian - glorian@cril.fr
  - Jean-Marie Lagniez - jmlagniez@gmail.com
- - Valentin Montmirail - valentin.montmirail@gmail.com
 
 
 
