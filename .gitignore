@@ -24,4 +24,7 @@ lib/
 # Editor generated files
 *~
 .vscode/
+*.code-workspace
 
+# Sonarcloud wrapper files
+build-wrapper-linux-x86/out/
