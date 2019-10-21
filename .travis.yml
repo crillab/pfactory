@@ -1,8 +1,6 @@
 language: cpp
 dist: trusty
-install: make
 compiler:
-  clang
   gcc
 addons:
   sonarcloud:
@@ -11,5 +9,5 @@ addons:
       secure: "e89ywZ/8tcNJ3280oJa4FIVcqxulaL7jSIZGkpI4K9Zqf82VL9zLNCOWd1w8KHBQ6jrPniiECh6zPHjeip4txFFgXCVPDplFJKwRtPEdlTTebxy2v4Qsv3ZgISnLf/HQkAbuFS3K8J/pLnq79UeaToyYUERzGlDgMw+qW9IWZ/rK9jrnQfc53lhnWgfJ3pf0QTEtUYr7Tq9dWjugEvEvSXS/y+LsdrjsgGCy1dxdLHOb8JOdwzbME508RENYHpSIQoVjGLszuiQB3HtdS6KllvS3Y6sHUm8rHSM+bhRgOofBV2PC4Kxl18Adq2tcDQqbpL/E/V/U0+5G8TmwbiATiNbkCr4WzS3QcKxCIdrQryQDlNSBEiywRJ2BEesvjKRnbKw6qorhgU8d70y5NmAqCh9DmXEpvMFcyf5PEptdI1n0CccIOoTsbHqCr3QsEozH9H9CcEDIiQhCv5whnUVWk8l9uvlhWUN437HV048zKIpXj6aWDpPvWV4kkt2OxWXKEmZLkblY4fyJm9n3TIDX/Tax07mdyTNgx4tDE4s42eE1nucdgZ8i9YmHJvvaJ/cFIpC6vIDkFwcS5zqqfWceeDwLcJdNX2ZPqWUZRoM7r8Ec9Ev/eF8FK2tO1fyEG4g4lfME30d2Jd9toxcuAWmPfgqeUB3SZfCA8XRfxcYVgSw="
 
 script:
-  ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir build-wrapper-linux-x86/out/ make clean all
+  ./configure && ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir build-wrapper-linux-x86/out/ make clean all
 
