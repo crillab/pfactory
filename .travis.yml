@@ -10,4 +10,5 @@ addons:
 
 script:
   ./bootstrap && ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir build-wrapper-linux-x86/out/ make clean all
+  sonar-scanner
 
