@@ -1,6 +1,7 @@
 # pFactory - A generic library for designing parallel solvers
 
 [![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange)](https://github.com/crillab/pfactory/blob/master/LICENSE)
 
 pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
