@@ -1,4 +1,8 @@
 # pFactory - A generic library for designing parallel solvers
+
+[![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
+[![License](https://img.shields.io/badge/license-GPL--3.0-orange)](https://github.com/crillab/pfactory/blob/master/LICENSE)
+
 pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
 parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
 pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
