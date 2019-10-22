@@ -1,4 +1,4 @@
-# pFactory - A generic library for designing parallel solvers
+# pFactory - A generic library for designing parallel solvers !
 
 [![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
