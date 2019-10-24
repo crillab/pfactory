@@ -45,7 +45,7 @@ public:
     virtual bool recv(T &data, bool &isLast) = 0;
     virtual bool recv(T &data) = 0;
     virtual bool isEmpty() = 0;
-    virtual void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast) = 0;
+    virtual void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true) = 0;
     virtual void recvAll(std::vector<T> &data) = 0;
 
     virtual unsigned int getNbSend() = 0;
@@ -128,19 +128,17 @@ public:
     *   Pop all data already received by all threads (based on a heuristic)
     */
     inline void popDataReceived(unsigned int minQueuePointer, unsigned int threadIdQueue, std::vector<unsigned int> &queuePointer, std::deque<T> &deque){
-        if (minQueuePointer > 1000)
-            {
-                for (unsigned int i = 0; i < minQueuePointer; i++)
-                {
-                    for (unsigned int j = 0; j < nbThreads; j++){
-                        // Update queuePointer
-                        if (j != threadIdQueue) 
-                            queuePointer[j]--;
-                    }
-                    deque.pop_front();
-                }
+        for (unsigned int i = 0; i < minQueuePointer; i++)
+        {
+            for (unsigned int j = 0; j < nbThreads; j++){
+                // Update queuePointer
+                if (j != threadIdQueue) 
+                    queuePointer[j]--;
             }
+            deque.pop_front();
+        }
     }
+
 
     /* Receive all elements from the communicator.
            \param data: Received elements
@@ -148,51 +146,8 @@ public:
         */
     inline void recvAll(std::vector<T> &data)
     {
-        const unsigned int threadId = this->group->getThreadId();
-        for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
-        {
-            //Browse all queue except the queue of this thread
-            if (threadIdQueue != threadId)
-            {
-                //These adresses don't move, so no mutex here !
-                std::deque<T> &deque = vectorOfQueues[threadIdQueue];
-                std::vector<unsigned int> &queuePointer = threadQueuesPointer[threadIdQueue];
-
-                //Special issue if the watch of thread is at the end (the vector is empty)
-                if (deque.empty() || queuePointer[threadId] == deque.size()){
-                    continue;
-                }
-                std::mutex &mutex = threadMutexs[threadIdQueue];
-                std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[threadIdQueue];
-                unsigned int &minQueuePointer = minQueuesPointer[threadIdQueue];
-
-                mutex.lock();
-
-                //Verify the queue of pointers
-                assertQueuePointerCriticalSection(threadIdQueue);
-
-                //Get the only the minimum is this case
-                minQueuePointer = queuePointer[threadOrdersPointerStart[threadIdQueue]->next->idThread];
-
-                //Now, recuperate clauses that I have to copy
-                while (queuePointer[threadId] != deque.size())
-                {
-                    data.push_back(deque[queuePointer[threadId]++]);
-                    nbRecv[threadId]++;
-                }
-                //At this time, this assertion have to be verify (no more clauses to recuperate)
-                assert(queuePointer[threadId] == deque.size());
-
-                //Update the ordersPointer 
-                updateOrdersPointer(ordersPointer, threadIdQueue, threadId);
-
-                //pop data already recuperate by all threads
-                popDataReceived(minQueuePointer, threadIdQueue, queuePointer, deque);
-
-                mutex.unlock();
-            }
-        }
-        nbRecvAll[threadId]++;
+        std::vector<T> noDataLast;
+        recvAll(data, noDataLast, false);
     }
 
     /* Receive all elements from the communicator.
@@ -201,7 +156,7 @@ public:
            Remark1: dataNotLast and dataLast are useful to deal with copy
            Remark2: When no data is found, nothing is added in these two parameters
         */
-    inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast)
+    inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true)
     {
         const unsigned int threadId = this->group->getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
@@ -231,16 +186,19 @@ public:
 
                 //Get the minimum and the second minimum !
                 minQueuePointer = queuePointer[threadOrdersPointerStart[threadIdQueue]->next->idThread];
-                int idSecondQueuePointer = threadOrdersPointerStart[threadIdQueue]->next->next->idThread;
-                minSecondQueuePointer = (idSecondQueuePointer == -1) ? deque.size() : queuePointer[idSecondQueuePointer];
 
-                //Recuperate clauses that I have to no copy : it is the dataLast thread that take these clauses
-                if (minQueuePointer == queuePointer[threadId])
-                { //I am a minumum : there are may be dataLast clauses with no copy
-                    while (queuePointer[threadId] != minSecondQueuePointer)
-                    { // warning, that can be equals (severals minimums equals)!
-                        dataLast.push_back(deque[queuePointer[threadId]++]);
-                        nbRecv[threadId]++;
+                if (withDataLast){
+                    int idSecondQueuePointer = threadOrdersPointerStart[threadIdQueue]->next->next->idThread;
+                    minSecondQueuePointer = (idSecondQueuePointer == -1) ? deque.size() : queuePointer[idSecondQueuePointer];
+
+                    //Recuperate clauses that I have to no copy : it is the dataLast thread that take these clauses
+                    if (minQueuePointer == queuePointer[threadId])
+                    { //I am a minumum : there are may be dataLast clauses with no copy
+                        while (queuePointer[threadId] != minSecondQueuePointer)
+                        { // warning, that can be equals (severals minimums equals)!
+                            dataLast.push_back(deque[queuePointer[threadId]++]);
+                            nbRecv[threadId]++;
+                        }
                     }
                 }
                 //Now, recuperate clauses that I have to copy
@@ -256,18 +214,7 @@ public:
                 updateOrdersPointer(ordersPointer, threadIdQueue, threadId);
 
                 //pop data already recuperate by all threads
-                if (minQueuePointer > 1000)
-                {
-                    for (unsigned int i = 0; i < minQueuePointer; i++)
-                    {
-                        for (unsigned int j = 0; j < nbThreads; j++)
-                        {
-                            if (j != threadIdQueue)
-                                queuePointer[j]--;
-                        }
-                        deque.pop_front();
-                    }
-                }
+                if (minQueuePointer > 1000) popDataReceived(minQueuePointer, threadIdQueue, queuePointer, deque);
 
                 mutex.unlock();
             }
@@ -292,51 +239,43 @@ public:
         */
     inline bool recv(T &data, bool &isLast)
     {
-
         const unsigned int threadId = this->group->getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
-            //printf("Browse:%d\n",threadIdQueue);
+            //Browse all queue except the queue of this thread
             if (threadIdQueue != threadId)
             {
-                //Browse all queue except the queue of this thread
+                
                 unsigned int i = 0;
                 std::deque<T> &deque = vectorOfQueues[threadIdQueue];
                 std::vector<unsigned int> &queuePointer = threadQueuesPointer[threadIdQueue];
                 std::mutex &mutex = threadMutexs[threadIdQueue];
                 unsigned int &minQueuePointer = minQueuesPointer[threadIdQueue];
 
-                mutex.lock();
                 //Special issue if the watch of thread is at the end or the vector is empty : no data
                 if (deque.empty() || queuePointer[threadId] == deque.size())
                 {
-                    mutex.unlock();
                     continue;
                 }
+
+                mutex.lock();
+                
                 //Recuperate the data and increment the queuePointer of the thread
                 unsigned int positionRet = queuePointer[threadId];
                 data = deque[queuePointer[threadId]++];
+
                 //Update the minWatch (usefull to know data to pop)
                 minQueuePointer = INT_MAX;
                 for (; i < nbThreads; i++)
                     if (i != threadIdQueue && minQueuePointer > queuePointer[i])
                         minQueuePointer = queuePointer[i];
+                
                 //Find if it is the dataLast or not
                 isLast = (positionRet < minQueuePointer) ? true : false;
+                
                 //pop data already recuperate by all threads
-                if (minQueuePointer > 1000)
-                {
-                    for (i = 0; i < minQueuePointer; i++)
-                    {
-                        for (unsigned int j = 0; j < nbThreads; j++)
-                        {
-                            if (j != threadIdQueue)
-                                queuePointer[j]--;
-                        }
-                        deque.pop_front();
-                    }
-                }
-                //printf("Recuperate %d from %d\n",ret,threadId);
+                if (minQueuePointer > 1000) popDataReceived(minQueuePointer, threadIdQueue, queuePointer, deque);
+                
                 nbRecv[threadId]++;
                 mutex.unlock();
                 return true;
@@ -385,6 +324,7 @@ private:
     std::vector<unsigned int> nbSend;
     std::vector<unsigned int> nbRecv;
     std::vector<unsigned int> nbRecvAll;
+
 };
 
 template <class T>
