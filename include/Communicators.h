@@ -90,12 +90,9 @@ public:
                 //These adresses don't move, so no mutex here !
                 std::deque<T> &deque = vectorOfQueues[threadIdQueue];
                 std::vector<unsigned int> &queuePointer = threadQueuesPointer[threadIdQueue];
-                if (deque.empty())
+                if (deque.empty() || queuePointer[threadId] == deque.size())
                     continue;
-                else if (queuePointer[threadId] == deque.size())
-                    continue;
-                else
-                    return false;
+                return false;
             }
         }
         return true;
