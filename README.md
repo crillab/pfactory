@@ -150,7 +150,7 @@ int main()
 
 ### Example 3
 You can also [download](https://www.dropbox.com/s/povk0z4gq8fqd7l/pfactory-glucose.tgz?dl=0) an implementation of the [SAT solver glucose](https://www.labri.fr/perso/lsimon/glucose/) in parallel mode (aka named syrup)
-using the library pFacory. Such implementation integrates clauses sharing mechanism.
+using the library pFactory. Such implementation integrates clauses sharing mechanism.
 
 
 ## AUTHORS
