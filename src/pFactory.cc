@@ -58,6 +58,15 @@ namespace pFactory{
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
 
+    Group::Group(Group* g):
+        Group(g->getNbThreads())
+        {
+            tasks = g->tasks;
+            returnCodes = g->returnCodes;
+            tasksSave = g->tasksSave;
+        }
+
+    
     void Group::reload(){
         testStop=false;
         nbLaunchedTasks=0;
@@ -91,7 +100,7 @@ namespace pFactory{
 
     void Group::add(std::function<int()> function){
         tasks.push_back(function);
-	returnCodes.push_back(-1);
+	    returnCodes.push_back(-1);
         tasksSave.push_back(function);
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
