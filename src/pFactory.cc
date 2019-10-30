@@ -57,7 +57,7 @@ namespace pFactory{
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
-    
+
 
     
     void Group::reload(){
@@ -91,7 +91,7 @@ namespace pFactory{
         
     }
 
-    void Group::add(std::function<int()> function){
+    void Group::add(const std::function<int()> &function){
         tasks.push_back(function);
 	    returnCodes.push_back(-1);
         tasksSave.push_back(function);

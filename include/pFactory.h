@@ -40,8 +40,9 @@
 #include "Barrier.h"
 
 
-#define VERBOSE 0
 namespace pFactory {
+    const int VERBOSE = 0;
+
     class Group; // Say Group exists without defining it.
 
     unsigned int getNbCores();
@@ -60,12 +61,13 @@ namespace pFactory {
         */
         Group(unsigned int pnbThreads);
 
-        Group(const Group &) = delete;
+        explicit Group(const Group &) = delete;
+
 
         ~Group() {
             delete startedBarrier;
             delete waitingThreads;
-            for(unsigned int i = 0 ; i < nbThreads ; i++)
+            for(unsigned int i = 0; i < nbThreads; i++)
                 delete threads[i];
         }
 
@@ -73,7 +75,7 @@ namespace pFactory {
         /* Add a task to this group of threads
         \param function the task using C++11 lambdas
         */
-        void add(std::function<int()> function);
+        void add(const std::function<int()> &function);
 
         /* Start the execution of tasks by the threads of the group
         A task is considered as completed when its associated lambda function (given in add()) return
@@ -119,7 +121,7 @@ namespace pFactory {
             //If the id is already calculate, it is ok
             if(threadId != UINT_MAX)return threadId;
             //Else loop on the threads to calculate the thread id.
-            for(unsigned int i = 0 ; i < threads.size() ; i++) {
+            for(unsigned int i = 0; i < threads.size(); i++) {
                 if(threads[i]->get_id() == std::this_thread::get_id()) {
                     threadId = i;
                     return threadId;
@@ -161,6 +163,7 @@ namespace pFactory {
     private:
 
         void wrapperFunction(unsigned int num);
+
         void wrapperWaitting(unsigned int seconds);
 
         //General variables for a group
