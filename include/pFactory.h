@@ -59,7 +59,7 @@ namespace pFactory {
         \param pnbThreads the number of threads
         \return An instance of group
         */
-        Group(unsigned int pnbThreads);
+        explicit Group(unsigned int pnbThreads);
 
         explicit Group(const Group &) = delete;
 
