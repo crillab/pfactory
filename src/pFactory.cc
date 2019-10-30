@@ -57,14 +57,7 @@ namespace pFactory{
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
-
-    Group::Group(Group* g):
-        Group(g->getNbThreads())
-        {
-            tasks = g->tasks;
-            returnCodes = g->returnCodes;
-            tasksSave = g->tasksSave;
-        }
+    
 
     
     void Group::reload(){

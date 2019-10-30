@@ -60,7 +60,7 @@ namespace pFactory {
         */
         Group(unsigned int pnbThreads);
 
-        Group(Group* g);
+        Group(const Group &) = delete;
 
         ~Group() {
             delete startedBarrier;
