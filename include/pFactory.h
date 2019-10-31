@@ -63,6 +63,8 @@ namespace pFactory {
 
         explicit Group(const Group &) = delete;
 
+        Group const & operator=(Group &&g) = delete;
+
 
         ~Group() {
             delete startedBarrier;
