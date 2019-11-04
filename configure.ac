@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT(pFactory, 3.0, pfactory@cril.fr)
+AC_INIT(pFactory, 1.0.0, pfactory@cril.fr)
 
 PACKAGE=pFactory
 VERSION=1.0.0
