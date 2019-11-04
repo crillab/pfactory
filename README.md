@@ -1,4 +1,4 @@
-# pFactory - A generic library for designing parallel solvers !
+# pFactory - A generic library for designing parallel solvers
 
 [![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
@@ -22,16 +22,15 @@ Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicol
 
 ### Dependencies
 This libary needs:
- - autoreconf (package autoconf)
- - C++11
- - pthread library
+ - a C++11 compiler
+ - the pthread library
 
 ### Installation 
  
 
 In the directory pFactory:
 ```console
-./bootstrap
+./configure
 ```
 
 ```console
@@ -39,6 +38,8 @@ make
 ```
 
 The created library ```libpFactory.a``` is in the directory ```lib/```
+
+Note to developpers: editing pFactory may require the [autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
 
 ## User Manual
 
@@ -153,7 +154,7 @@ You can also [download](http://www.cril.univ-artois.fr/~audemard/pfactory-glucos
 using the library pFactory. Such implementation integrates clauses sharing mechanism.
 
 
-## AUTHORS
+## Authors
 
 Main author
  - Nicolas Szczepanski - szczepanski.nicolas@gmail.com
