@@ -1,8 +1,8 @@
 AC_PREREQ(2.59)
-AC_INIT(pFactory, 1.0.0, pfactory@cril.fr)
+AC_INIT(pFactory, 1.0.1, pfactory@cril.fr)
 
 PACKAGE=pFactory
-VERSION=1.0.0
+VERSION=1.0.1
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADER([src/config.h])
