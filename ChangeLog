@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.0] - Tue, 01 Oct 2019
+- locked API
+- fix some minor issues
+
 ## [0.0.1] - Mon, 31 Aug 2019
 - initial release of the library
 
