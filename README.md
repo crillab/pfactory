@@ -28,7 +28,7 @@ This libary needs:
 ### Installation 
  
 
-In the directory pFactory:
+After unzipping the release archive, go into the source directory and enter:
 ```console
 ./configure
 ```
@@ -39,7 +39,7 @@ make
 
 The created library ```libpFactory.a``` is in the directory ```lib/```
 
-Note to developpers: editing pFactory may require the [autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html).
+Note to developers: editing pFactory may require the [autotools](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html). After downloading the source code, execute `bootstrap` to initialize the project.
 
 ## User Manual
 
