@@ -1,8 +1,8 @@
 AC_PREREQ(2.59)
-AC_INIT(pFactory, 1.0.1, pfactory@cril.fr)
+AC_INIT(pFactory, 1.0.2, pfactory@cril.fr)
 
 PACKAGE=pFactory
-VERSION=1.0.1
+VERSION=1.0.2
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADER([src/config.h])
@@ -20,5 +20,5 @@ AX_PTHREAD
 LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS -I$PWD/include $PTHREAD_CFLAGS"
 
-AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/communication/Makefile)
+AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/communication1/Makefile examples/communication2/Makefile)
 

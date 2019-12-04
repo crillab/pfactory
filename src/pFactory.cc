@@ -40,6 +40,7 @@ namespace pFactory{
   
   
     Group::Group(unsigned int pnbThreads):
+        threadsId(new std::vector<unsigned int>(pnbThreads, 0)),
         testStop(false),
         idGroup(Group::groupCount++),
         nbThreads(pnbThreads),

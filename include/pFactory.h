@@ -53,6 +53,7 @@ namespace pFactory {
     */
     class Group {
         static int groupCount; //To get the id of a group
+        std::vector<unsigned int>* threadsId; //To memorize the ids of threads
 
     public:
         /* The constructor of a group

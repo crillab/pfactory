@@ -32,36 +32,36 @@ public:
     int idThread;
 };
 
+
 /*
  * To communicate between threads some information by copies.
  */
-template <class T = int>
+template <class T>
 class Communicator
 {
+private:
+    Group *group;
+
+    const unsigned int nbThreads;
+    std::vector<std::mutex> threadMutexs;
+
+    std::vector<std::deque<T>> vectorOfQueues;
+    std::vector<std::vector<unsigned int>> threadQueuesPointer;
+    std::vector<std::vector<OrderPointer *>> threadOrdersPointer;
+    std::vector<OrderPointer *> threadOrdersPointerStart;
+    std::vector<OrderPointer *> threadOrdersPointerEnd;
+
+    std::vector<unsigned int> minQueuesPointer;
+    std::vector<unsigned int> minSecondQueuesPointer;
+
+    std::vector<unsigned int> nbSend;
+    std::vector<unsigned int> nbRecv;
+    std::vector<unsigned int> nbRecvAll;
+
 public:
     Communicator(Group *g);
-    virtual ~Communicator();
-    virtual void send(T data) = 0;
-    virtual bool recv(T &data, bool &isLast) = 0;
-    virtual bool recv(T &data) = 0;
-    virtual bool isEmpty() = 0;
-    virtual void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true) = 0;
-    virtual void recvAll(std::vector<T> &data) = 0;
 
-    virtual unsigned int getNbSend() = 0;
-    virtual unsigned int getNbRecv() = 0;
-
-protected:
-    Group *group;
-};
-
-template <class T>
-class MultipleQueuesCommunicator : public Communicator<T>
-{
-public:
-    MultipleQueuesCommunicator(Group *g);
-
-    ~MultipleQueuesCommunicator();
+    ~Communicator();
 
     /*Send a data to others threads
           \param data Data to send
@@ -97,7 +97,6 @@ public:
         }
         return true;
     }
-
     /* Verify the queue of pointers
     */
     inline void assertQueuePointerCriticalSection(unsigned int threadIdQueue){
@@ -108,13 +107,13 @@ public:
         assert(threadOrdersPointerEnd[threadIdQueue]->previous != NULL);
     }
 
+
     /*  Update the ordersPointer (put the current thread in the end of the queue) 
         Usefull to calculate the minimum and the second minimum faster
     */
     inline void updateOrdersPointer(std::vector<OrderPointer *> &ordersPointer, unsigned int threadIdQueue, unsigned int threadId){
         ordersPointer[threadId]->next->previous = ordersPointer[threadId]->previous; //Removing in the queue
         ordersPointer[threadId]->previous->next = ordersPointer[threadId]->next;     //Removing in the queue
-
         ordersPointer[threadId]->next = threadOrdersPointerEnd[threadIdQueue];               //Push back in the queue
         ordersPointer[threadId]->previous = threadOrdersPointerEnd[threadIdQueue]->previous; //Push back in the queue
         threadOrdersPointerEnd[threadIdQueue]->previous->next = ordersPointer[threadId];     //Push back in the queue
@@ -305,34 +304,13 @@ public:
         return ret;
     };
 
-private:
-    const unsigned int nbThreads;
-    std::vector<std::mutex> threadMutexs;
-
-    std::vector<std::deque<T>> vectorOfQueues;
-    std::vector<std::vector<unsigned int>> threadQueuesPointer;
-    std::vector<std::vector<OrderPointer *>> threadOrdersPointer;
-    std::vector<OrderPointer *> threadOrdersPointerStart;
-    std::vector<OrderPointer *> threadOrdersPointerEnd;
-
-    std::vector<unsigned int> minQueuesPointer;
-    std::vector<unsigned int> minSecondQueuesPointer;
-
-    std::vector<unsigned int> nbSend;
-    std::vector<unsigned int> nbRecv;
-    std::vector<unsigned int> nbRecvAll;
 
 };
 
-template <class T>
-Communicator<T>::Communicator(Group *g) : group(g){};
 
 template <class T>
-Communicator<T>::~Communicator() {}
-
-template <class T>
-MultipleQueuesCommunicator<T>::MultipleQueuesCommunicator(Group *g)
-    : Communicator<T>(g),
+Communicator<T>::Communicator(Group *g)
+    : group(g),
       nbThreads(g->getNbThreads()),
       threadMutexs(g->getNbThreads()),
       vectorOfQueues(g->getNbThreads()),
@@ -380,7 +358,7 @@ MultipleQueuesCommunicator<T>::MultipleQueuesCommunicator(Group *g)
 };
 
 template <class T>
-MultipleQueuesCommunicator<T>::~MultipleQueuesCommunicator()
+Communicator<T>::~Communicator()
 {
     for (unsigned int i = 0; i < nbThreads; i++)
     {
