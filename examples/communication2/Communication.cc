@@ -17,30 +17,38 @@
  */
 #include "pFactory.h"
 #include "Communicators.h"
+#include "Barrier.h"
 #include <mutex>
 
 
 
 int main() {
-    pFactory::Group group(pFactory::getNbCores());
+    unsigned int nbThreads = 8; 
+    pFactory::Group group(nbThreads);
     
+    std::vector<bool> senders({true, true, true, true, false, false, false, false});
+    std::vector<bool> receivers({false, false, false, false, true, true, true, true});
     
-    pFactory::Communicator<int> integerCommunicator(&group);
-    
+    pFactory::Communicator<int> integerCommunicator(&group, senders, receivers);
+    Barrier* barrier = new Barrier(nbThreads);
+
     std::mutex m;
 
-    for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
+    for(unsigned int i = 0; i < nbThreads; i++) {
         group.add([&, i]() {
-            int nb = rand() % 101; // Send a random number
-            integerCommunicator.send(nb);
+            // Warning: i is not the ith thread, use the group.getThreadId() function !
+            integerCommunicator.send(group.getThreadId());
+
+            //To wait that all data are sent
+            barrier->wait();
 
             //Receive and display all numbers of others threads
             std::vector<int> data;
             /* With recvAll function */
             integerCommunicator.recvAll(data);
 	    
-	    m.lock(); // Mutex is needed only for displaying information in a smart way on the console
-            std::cout << "Task" << i << " receives:";
+	        m.lock(); // Mutex is needed only for displaying information in a smart way on the console
+            std::cout << "Task" << group.getThreadId() << " receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 std::cout << data[j] << ' ';
             std::cout << std::endl;
