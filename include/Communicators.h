@@ -21,6 +21,7 @@
 namespace pFactory
 {
 
+/* Element of a double linked list representing the threads, the position, and their order, within of a std::deque of data */
 class OrderPointer
 {
 public:
@@ -40,18 +41,32 @@ template <class T>
 class Communicator
 {
 private:
-    Group *group;
+    Group *group; /* Group of threads that have to communicate */ 
+    const unsigned int nbThreads; /* Number of threads */ 
 
-    const unsigned int nbThreads;
-    std::vector<std::mutex> threadMutexs;
+    /* Data to exchange : one std::deque per thread, the ith std::deque is the data sent by the ith thread */
+    std::vector<std::deque<T>> vectorOfQueues; 
 
-    std::vector<std::deque<T>> vectorOfQueues;
-    std::vector<std::vector<unsigned int>> threadQueuesPointer;
+    /* One mutex per queue */
+    std::vector<std::mutex> threadMutexs;  
+
+    /* for each std::deque of data, the position of each other thread (to know data already received) */
+    std::vector<std::vector<unsigned int>> threadQueuesPointer; 
+
+    /* for each std::deque of data, to now the order of threads according to theirs positions (OrderPoiter* is a double linked list) */
     std::vector<std::vector<OrderPointer *>> threadOrdersPointer;
+    
+    /* First element for each std::vector<OrderPointer *> */ 
     std::vector<OrderPointer *> threadOrdersPointerStart;
+
+    /* Last element for each std::vector<OrderPointer *> */ 
     std::vector<OrderPointer *> threadOrdersPointerEnd;
 
+    /* For each std::deque, the smallest position of a thread (used to know if a thread is the last to recuperate some data) */
     std::vector<unsigned int> minQueuesPointer;
+
+    /* For each std::deque, the second smallest position of a thread (so not the smallest :)) */
+    /* Used to know, in the case where one thread is the last to recuperate some data, the limit of these last data */
     std::vector<unsigned int> minSecondQueuesPointer;
 
     std::vector<unsigned int> nbSend;
@@ -189,7 +204,7 @@ public:
 
                     //Recuperate clauses that I have to no copy : it is the dataLast thread that take these clauses
                     if (minQueuePointer == queuePointer[threadId])
-                    { //I am a minumum : there are may be dataLast clauses with no copy
+                    { //I am a minumum : there are may be dataLast clauses with no copy (this thread is at the smallest position)
                         while (queuePointer[threadId] != minSecondQueuePointer)
                         { // warning, that can be equals (severals minimums equals)!
                             dataLast.push_back(deque[queuePointer[threadId]++]);
