@@ -24,6 +24,7 @@
 int main() {
     pFactory::Group group(pFactory::getNbCores());
     
+    
     pFactory::Communicator<int> integerCommunicator(&group);
     
     std::mutex m;
