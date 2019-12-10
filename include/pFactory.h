@@ -43,6 +43,35 @@
 namespace pFactory {
     const int VERBOSE = 0;
 
+    /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
+    static std::mutex stdio_mutex;
+
+    struct cout
+    {
+            std::unique_lock<std::mutex> lk;
+            cout()
+                :
+                lk(std::unique_lock<std::mutex>(stdio_mutex))
+            {
+
+            }
+
+            template<typename T>
+            cout& operator<<(const T& _t)
+            {
+                std::cout << _t;
+                return *this;
+            }
+
+            cout& operator<<(std::ostream& (*fp)(std::ostream&))
+            {
+                std::cout << fp;
+                return *this;
+            }
+    };
+
+    typedef cout cerr;
+
     class Group; // Say Group exists without defining it.
 
     unsigned int getNbCores();
@@ -162,6 +191,8 @@ namespace pFactory {
 
         inline bool isStopped() { return testStop; }
 
+        //Barrier for the user
+        Barrier* barrier;
 
     private:
 

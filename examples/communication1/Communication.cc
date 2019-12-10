@@ -18,7 +18,7 @@
 #include "pFactory.h"
 #include "Communicators.h"
 #include <mutex>
-
+#include <sstream> 
 
 // In this example, each thread share an integer to the others.
 // The mutex is used only for displaying data in a smart way.
@@ -34,40 +34,39 @@ int main() {
     // A group of nbCores threads 
     pFactory::Group group(pFactory::getNbCores());
     pFactory::Communicator<int> integerCommunicator(&group);
-    std::mutex m;
-
+    
     for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
         // Add as many tasks as threads in the group
         group.add([&, i]() {
-            m.lock(); // Mutex is needed only for displaying information in a smart way on the console
-            int nb = rand() % 101; // Send a random number
-            std::cout << "Task" << i << " sends: " << nb << std::endl;
-            integerCommunicator.send(nb);
-            m.unlock();
+            // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
+            pFactory::cout() << "Task" << std::to_string(i) << " (on the thread "<< group.getThreadId() <<") sends: " << group.getThreadId() << std::endl;
+            
+            // group.getThreadId() return the id of a thread that execute this function for a group
+            integerCommunicator.send(group.getThreadId());
+            
+            // A group has a barrier to wait all tasks at the same moment of the execution 
+            // Here, this barrier is used to wait that all tasks are sent their data 
+            group.barrier->wait();
 
-            //Receive and display all numbers of others threads
+            std::stringstream msg;
 #ifdef USE_RECVALL
-            std::vector<int> data;
             /* With recvAll function */
+            std::vector<int> data;
             integerCommunicator.recvAll(data);
-            m.lock(); // Mutex is needed only for displaying information in a smart way on the console
-            std::cout << "Task" << i << " receives:";
+            msg << "Task" << i << " (on the thread "<< group.getThreadId() <<") receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
-                std::cout << data[j] << ' ';
-            std::cout << std::endl;
-            m.unlock();
+                msg << data[j] << ' ';
+            pFactory::cout() << msg.str() << std::endl;
+            
 #else
-            m.lock(); // Mutex is needed only for displaying information in a smart way on the console
-            std::cout << "Task" << i << " receives:";
+            /* With recv function */
+            msg << "Task" << i << " (on the thread "<< group.getThreadId() <<") receives:";
             int data;
             while(integerCommunicator.recv(data) != false)
-                std::cout << data << ' ';
-
-            std::cout << std::endl;
-            m.unlock();
-
+                msg << data << ' ';
+            pFactory::cout() << msg.str() << std::endl;
 #endif
-            /* With recv function */
+            
 
 
             return 0;

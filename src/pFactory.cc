@@ -37,7 +37,7 @@ namespace pFactory{
         std::thread::hardware_concurrency();
     }
 
-  
+    
   
     Group::Group(unsigned int pnbThreads):
         threadsId(new std::vector<unsigned int>(pnbThreads, 0)),
@@ -54,6 +54,7 @@ namespace pFactory{
 	
     {
         startedBarrier = new Barrier(pnbThreads+1);
+        barrier = new Barrier(pnbThreads); //Barrier for the user
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);

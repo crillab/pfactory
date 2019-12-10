@@ -365,7 +365,7 @@ Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, cons
 {
     assert(senders.size() == nbThreads);
     assert(receivers.size() == nbThreads);
-    printf("senders:\n");
+    /*printf("senders:\n");
     for (int i = 0; i < (int)senders.size(); i++){
         printf("%d ", (int)senders[i]);
     }
@@ -374,8 +374,7 @@ Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, cons
     for (int i = 0; i < (int)receivers.size(); i++){
         printf("%d ", (int)receivers[i]);
     }
-    printf("\n");
-    
+    printf("\n");*/
         
     /* To delete a pointer (swap and delete)*/
     auto removePointer = [&](unsigned int queue, unsigned int thread) 
