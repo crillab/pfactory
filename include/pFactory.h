@@ -44,14 +44,15 @@ namespace pFactory {
     const int VERBOSE = 0;
 
     /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
-    static std::mutex stdio_mutex;
+    static std::mutex stdout_mutex;
+    static std::mutex stderr_mutex;
 
     struct cout
     {
             std::unique_lock<std::mutex> lk;
             cout()
                 :
-                lk(std::unique_lock<std::mutex>(stdio_mutex))
+                lk(std::unique_lock<std::mutex>(stdout_mutex))
             {
 
             }
@@ -70,7 +71,29 @@ namespace pFactory {
             }
     };
 
-    typedef cout cerr;
+    struct cerr
+    {
+            std::unique_lock<std::mutex> lk;
+            cerr()
+                :
+                lk(std::unique_lock<std::mutex>(stderr_mutex))
+            {
+
+            }
+
+            template<typename T>
+            cerr& operator<<(const T& _t)
+            {
+                std::cerr << _t;
+                return *this;
+            }
+
+            cerr& operator<<(std::ostream& (*fp)(std::ostream&))
+            {
+                std::cerr << fp;
+                return *this;
+            }
+    };
 
     class Group; // Say Group exists without defining it.
 
