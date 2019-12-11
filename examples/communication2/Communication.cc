@@ -30,7 +30,7 @@ int main() {
     std::vector<bool> receivers({false, false, false, false, true, true, true, true});
     
     pFactory::Communicator<int> integerCommunicator(&group, senders, receivers);
-    Barrier* barrier = new Barrier(nbThreads);
+    pFactory::Barrier* barrier = new pFactory::Barrier(nbThreads);
 
     std::mutex m;
 
