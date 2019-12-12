@@ -18,6 +18,8 @@
 #ifndef communicators_H
 #define communicators_H
 
+#include <initializer_list>
+
 namespace pFactory
 {
 
@@ -83,7 +85,15 @@ private:
 public:
     Communicator(Group *g);
     Communicator(Group *g, const std::vector<bool>& senders, const std::vector<bool>& receivers);
+    Communicator(Group *g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers);
+
+    void initialize();
+
     ~Communicator();
+    
+    inline static void vectorThreadsToVectorBool(const std::vector<unsigned int>& vecInt, std::vector<bool>& results){
+        for (unsigned int i = 0; i < vecInt.size(); i++)results[vecInt[i]] = true;
+    }
 
     /*Send a data to others threads
           \param data Data to send
@@ -319,7 +329,6 @@ public:
         }
         return ret;
     };
-
     inline unsigned int getNbRecv()
     {
         unsigned int ret = 0;
@@ -332,25 +341,19 @@ public:
         return ret;
     };
 
-
 };
 
-template <class T>
-Communicator<T>::Communicator(Group *g)
-    : Communicator<T>::Communicator(g, std::vector<bool>(g->getNbThreads(), true), std::vector<bool>(g->getNbThreads(), true))
-{
-      
-}
 
 template <class T>
-Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
+Communicator<T>::Communicator(Group *g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers)
     : group(g),
       nbThreads(g->getNbThreads()),
-      senders(p_senders),
-      receivers(p_receivers),
+      
+      senders(std::vector<bool>(g->getNbThreads(), false)),
+      receivers(std::vector<bool>(g->getNbThreads(), false)),
+      
       vectorOfQueues(nbThreads),
       threadMutexs(nbThreads),
-      
       threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
       threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
       threadOrdersPointerStart(nbThreads, NULL),
@@ -363,19 +366,64 @@ Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, cons
       nbRecv(nbThreads),
       nbRecvAll(nbThreads)
 {
-    assert(senders.size() == nbThreads);
-    assert(receivers.size() == nbThreads);
-    /*printf("senders:\n");
-    for (int i = 0; i < (int)senders.size(); i++){
-        printf("%d ", (int)senders[i]);
-    }
-    printf("\n");
-    printf("receivers:\n");
-    for (int i = 0; i < (int)receivers.size(); i++){
-        printf("%d ", (int)receivers[i]);
-    }
-    printf("\n");*/
-        
+    vectorThreadsToVectorBool(p_senders, senders);
+    vectorThreadsToVectorBool(p_receivers, receivers);
+    initialize();  
+}
+
+template <class T>
+Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
+    : group(g),
+      nbThreads(g->getNbThreads()),
+      
+      senders(p_senders),
+      receivers(p_receivers),
+      
+      vectorOfQueues(nbThreads),
+      threadMutexs(nbThreads),
+      threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
+      threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
+      threadOrdersPointerStart(nbThreads, NULL),
+      threadOrdersPointerEnd(nbThreads, NULL),
+
+      minQueuesPointer(nbThreads),
+      minSecondQueuesPointer(nbThreads),
+
+      nbSend(nbThreads),
+      nbRecv(nbThreads),
+      nbRecvAll(nbThreads)
+{
+    initialize();
+}
+
+
+template <class T>
+Communicator<T>::Communicator(Group *g)
+    : group(g),
+      nbThreads(g->getNbThreads()),
+      
+      senders(std::vector<bool>(g->getNbThreads(), true)),
+      receivers(std::vector<bool>(g->getNbThreads(), true)),
+      
+      vectorOfQueues(nbThreads),
+      threadMutexs(nbThreads),
+      threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
+      threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
+      threadOrdersPointerStart(nbThreads, NULL),
+      threadOrdersPointerEnd(nbThreads, NULL),
+
+      minQueuesPointer(nbThreads),
+      minSecondQueuesPointer(nbThreads),
+
+      nbSend(nbThreads),
+      nbRecv(nbThreads),
+      nbRecvAll(nbThreads)
+{
+    initialize();
+}
+
+template <class T>
+void Communicator<T>::initialize(){
     /* To delete a pointer (swap and delete)*/
     auto removePointer = [&](unsigned int queue, unsigned int thread) 
     { 
@@ -417,13 +465,8 @@ Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, cons
                 }
             }
         }
-
     }
-    
-
 }
-
-
 
 template <class T>
 Communicator<T>::~Communicator()

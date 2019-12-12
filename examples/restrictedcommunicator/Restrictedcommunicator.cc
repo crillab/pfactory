@@ -19,36 +19,50 @@
 #include "Communicators.h"
 #include <sstream> 
 
+void communication(pFactory::Group& group, pFactory::Communicator<int>& communicator){
+   
+    communicator.send(group.getThreadId());
 
+    //To wait that all data are sent
+    group.barrier.wait();
+    //Receive and display all numbers of others threads
+    std::vector<int> data;
+    std::stringstream msg;
+
+    communicator.recvAll(data);
+    msg << "Task " << group.getThreadId() << " receives: ";
+    for(unsigned int j = 0; j < data.size(); ++j)
+        msg  << data[j] << ' ';
+    pFactory::cout() << msg.str() << std::endl;
+}
 
 int main() {
     unsigned int nbThreads = 8; 
     pFactory::Group group(nbThreads);
     
-    std::vector<bool> senders({true, true, true, true, false, false, false, false});
-    std::vector<bool> receivers({false, false, false, false, true, true, true, true});
-    
-    pFactory::Communicator<int> integerCommunicator(&group, senders, receivers);
 
+    pFactory::Communicator<int> integerCommunicator1(&group, {0,1,2,3}, {4,5,6,7});
+    pFactory::Communicator<int> integerCommunicator2(&group, {0,1,2,3,4,5}, {2,3,4,5,6,7});
+    pFactory::Communicator<int> integerCommunicator3(&group, {0,1}, {6,7});
+    pFactory::Communicator<int> integerCommunicator4(&group, {1,2,3,4,5,6,7}, {0});
     
     for(unsigned int i = 0; i < nbThreads; i++) {
         group.add([&, i]() {
-            // Warning: i is not the ith thread, use the group.getThreadId() function !
-            integerCommunicator.send(group.getThreadId());
-
-            //To wait that all data are sent
+            if (group.getThreadId() == 0)
+                std::cout << "Test {0,1,2,3}, {4,5,6,7}:" << std::endl; 
+            communication(group, integerCommunicator1);
             group.barrier.wait();
-
-            //Receive and display all numbers of others threads
-            std::vector<int> data;
-            std::stringstream msg;
-
-            integerCommunicator.recvAll(data);
-	    
-	        msg << "Task" << group.getThreadId() << " receives:";
-            for(unsigned int j = 0; j < data.size(); ++j)
-                msg  << data[j] << ' ';
-            pFactory::cout() << msg.str() << std::endl;
+            if (group.getThreadId() == 0)
+                std::cout << "Test {0,1,2,3,4,5}, {2,3,4,5,6,7}:" << std::endl;
+            communication(group, integerCommunicator2);
+            group.barrier.wait();
+            if (group.getThreadId() == 0)
+                std::cout << "Test {0,1}, {6,7}:" << std::endl;
+            communication(group, integerCommunicator3);
+            group.barrier.wait();
+            if (group.getThreadId() == 0)
+                std::cout << "Test {1,2,3,4,5,6,7}, {0}:" << std::endl;
+            communication(group, integerCommunicator4);
             return 0;
         });
     }
