@@ -122,6 +122,12 @@ namespace pFactory {
 
 
         ~Group() {
+            printf("LALA\n");
+            if (isStarted == false){
+                tasks.clear(); //First clean all tasks
+                startedBarrier->wait(); //Free the barrier
+                wait(); //Join all threads
+            }
             delete threadsId;
             delete startedBarrier;
             delete waitingThreads;
@@ -177,14 +183,22 @@ namespace pFactory {
         inline unsigned int getThreadId() {
             thread_local static unsigned int threadId = UINT_MAX;
             //If the id is already calculate, it is ok
-            if(threadId != UINT_MAX)return threadId;
+            //printf("JJ %d\n", (int)threads.size());
+            if(threadId != UINT_MAX){
+                //printf("JJ3 %d\n", (int)threadId);
+                return threadId;
+            }
             //Else loop on the threads to calculate the thread id.
             for(unsigned int i = 0; i < threads.size(); i++) {
                 if(threads[i]->get_id() == std::this_thread::get_id()) {
                     threadId = i;
+                    //printf("JJ1 %d\n", (int)threadId);
+            
                     return threadId;
                 }
             }
+            //printf("JJ2 %d\n", (int)threadId);
+            
             return threadId;
         }
 
@@ -248,6 +262,8 @@ namespace pFactory {
 
         //For wait with seconds
         std::thread *waitingThreads;
+
+        bool isStarted;
 
     };
 
