@@ -45,14 +45,10 @@ int main(){
   }
 
   pFactory::cout() << "Without pFactory::cout():" << std::endl;
-  // Start the computation of all tasks
   groupWrongDisplay.start();
-  // Wait until all threads are performed all tasks 
   groupWrongDisplay.wait();
 
   pFactory::cout() << "With pFactory::cout():" << std::endl;
-  // Start the computation of all tasks
   groupRightDisplay.start();
-  // Wait until all threads are performed all tasks 
   groupRightDisplay.wait();
 }

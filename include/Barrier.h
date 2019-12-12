@@ -31,6 +31,8 @@ namespace pFactory
     
   public:
     explicit Barrier(std::size_t count) : _count(count){ }
+    ~Barrier(){}
+
     void wait()
     {
       std::unique_lock<std::mutex> lock{_mutex};

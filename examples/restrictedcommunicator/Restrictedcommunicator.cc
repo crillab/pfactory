@@ -17,8 +17,7 @@
  */
 #include "pFactory.h"
 #include "Communicators.h"
-#include "Barrier.h"
-#include <mutex>
+#include <sstream> 
 
 
 
@@ -30,30 +29,26 @@ int main() {
     std::vector<bool> receivers({false, false, false, false, true, true, true, true});
     
     pFactory::Communicator<int> integerCommunicator(&group, senders, receivers);
-    pFactory::Barrier* barrier = new pFactory::Barrier(nbThreads);
 
-    std::mutex m;
-
+    
     for(unsigned int i = 0; i < nbThreads; i++) {
         group.add([&, i]() {
             // Warning: i is not the ith thread, use the group.getThreadId() function !
             integerCommunicator.send(group.getThreadId());
 
             //To wait that all data are sent
-            barrier->wait();
+            group.barrier.wait();
 
             //Receive and display all numbers of others threads
             std::vector<int> data;
-            /* With recvAll function */
+            std::stringstream msg;
+
             integerCommunicator.recvAll(data);
 	    
-	        m.lock(); // Mutex is needed only for displaying information in a smart way on the console
-            std::cout << "Task" << group.getThreadId() << " receives:";
+	        msg << "Task" << group.getThreadId() << " receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
-                std::cout << data[j] << ' ';
-            std::cout << std::endl;
-            m.unlock();
-	    
+                msg  << data[j] << ' ';
+            pFactory::cout() << msg.str() << std::endl;
             return 0;
         });
     }

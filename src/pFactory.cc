@@ -41,6 +41,7 @@ namespace pFactory{
   
     Group::Group(unsigned int pnbThreads):
         threadsId(new std::vector<unsigned int>(pnbThreads, 0)),
+        barrier(pnbThreads),
         testStop(false),
         idGroup(Group::groupCount++),
         nbThreads(pnbThreads),
@@ -49,12 +50,10 @@ namespace pFactory{
         winnerConcurrentThreads(UINT_MAX),
         winnerConcurrentReturnCode(UINT_MAX),
         winnerConcurrentTask(UINT_MAX),
-	startedBarrier(NULL),
-	waitingThreads(NULL)
-	
+	    startedBarrier(NULL),
+	    waitingThreads(NULL)
     {
         startedBarrier = new Barrier(pnbThreads+1);
-        barrier = new Barrier(pnbThreads); //Barrier for the user
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);

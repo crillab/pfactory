@@ -17,7 +17,6 @@
  */
 #include "pFactory.h"
 #include "Communicators.h"
-#include <mutex>
 #include <sstream> 
 
 // In this example, each thread share an integer to the others.
@@ -46,7 +45,7 @@ int main() {
             
             // A group has a barrier to wait all tasks at the same moment of the execution 
             // Here, this barrier is used to wait that all tasks are sent their data 
-            group.barrier->wait();
+            group.barrier.wait();
 
             std::stringstream msg;
 #ifdef USE_RECVALL

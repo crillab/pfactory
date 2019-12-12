@@ -107,6 +107,9 @@ namespace pFactory {
         std::vector<unsigned int>* threadsId; //To memorize the ids of threads
 
     public:
+        //Barrier for the user
+        Barrier barrier;
+
         /* The constructor of a group
         \param pnbThreads the number of threads
         \return An instance of group
@@ -119,6 +122,7 @@ namespace pFactory {
 
 
         ~Group() {
+            delete threadsId;
             delete startedBarrier;
             delete waitingThreads;
             for(unsigned int i = 0; i < nbThreads; i++)
@@ -213,8 +217,6 @@ namespace pFactory {
 
         inline bool isStopped() { return testStop; }
 
-        //Barrier for the user
-        Barrier* barrier;
 
     private:
 
