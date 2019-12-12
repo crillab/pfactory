@@ -20,5 +20,13 @@ AX_PTHREAD
 LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS -I$PWD/include $PTHREAD_CFLAGS"
 
-AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/display/Makefile examples/communication1/Makefile examples/communication2/Makefile)
+AC_OUTPUT(Makefile)
+AC_OUTPUT(examples/Makefile)
+AC_OUTPUT(examples/helloworld/Makefile)
+AC_OUTPUT(examples/display/Makefile)
+AC_OUTPUT(examples/communicator/Makefile)
+AC_OUTPUT(examples/restrictedcommunicator/Makefile)
+#AC_OUTPUT(examples/intercommunicator/Makefile)
+#AC_OUTPUT(examples/barrier/Makefile)
+#AC_OUTPUT(examples/groups/Makefile)
 

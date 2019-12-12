@@ -44,15 +44,14 @@ namespace pFactory {
     const int VERBOSE = 0;
 
     /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
-    static std::mutex stdout_mutex;
-    static std::mutex stderr_mutex;
-
+    static std::mutex std_mutex;
+    
     struct cout
     {
             std::unique_lock<std::mutex> lk;
             cout()
                 :
-                lk(std::unique_lock<std::mutex>(stdout_mutex))
+                lk(std::unique_lock<std::mutex>(std_mutex))
             {
 
             }
@@ -76,7 +75,7 @@ namespace pFactory {
             std::unique_lock<std::mutex> lk;
             cerr()
                 :
-                lk(std::unique_lock<std::mutex>(stderr_mutex))
+                lk(std::unique_lock<std::mutex>(std_mutex))
             {
 
             }

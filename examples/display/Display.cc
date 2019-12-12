@@ -31,13 +31,15 @@ int main(){
     // The capture list [i, &group] meaning that i (resp. group) is captured by value (resp. by reference)  
     groupWrongDisplay.add([i, &groupWrongDisplay](){
         // pFactory::cout() provides a special critical section for displaying information
-	      std::cout << "Task " << i << " (on the thread " << groupWrongDisplay.getThreadId() << ") says Hello World" << std::endl;
-	      return 0;
+	      std::cout << "Task " << i << " (on the thread " << groupWrongDisplay.getThreadId() << ") says Hello World on stdout" << std::endl;
+	      std::cerr << "Task " << i << " (on the thread " << groupWrongDisplay.getThreadId() << ") says Hello World on stderr" << std::endl;
+        return 0;
       });
     
     groupRightDisplay.add([i, &groupRightDisplay](){
         // pFactory::cout() provides a special critical section for displaying information
-	      pFactory::cout() << "Task " << i << " (on the thread " << groupRightDisplay.getThreadId() << ") says Hello World" << std::endl;
+	      pFactory::cout() << "Task " << i << " (on the thread " << groupRightDisplay.getThreadId() << ") says Hello World on stdout" << std::endl;
+	      pFactory::cerr() << "Task " << i << " (on the thread " << groupRightDisplay.getThreadId() << ") says Hello World on stderr" << std::endl;
 	      return 0;
       });
   }
