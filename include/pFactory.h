@@ -104,7 +104,6 @@ namespace pFactory {
     */
     class Group {
         static int groupCount; //To get the id of a group
-        std::vector<unsigned int>* threadsId; //To memorize the ids of threads
 
     public:
         //Barrier for the user
@@ -122,13 +121,11 @@ namespace pFactory {
 
 
         ~Group() {
-            printf("LALA\n");
             if (isStarted == false){
                 tasks.clear(); //First clean all tasks
                 startedBarrier->wait(); //Free the barrier
                 wait(); //Join all threads
             }
-            delete threadsId;
             delete startedBarrier;
             delete waitingThreads;
             for(unsigned int i = 0; i < nbThreads; i++)
@@ -182,30 +179,22 @@ namespace pFactory {
          */
         inline unsigned int getThreadId() {
             thread_local static unsigned int threadId = UINT_MAX;
-            //If the id is already calculate, it is ok
-            //printf("JJ %d\n", (int)threads.size());
-            if(threadId != UINT_MAX){
-                //printf("JJ3 %d\n", (int)threadId);
-                return threadId;
-            }
-            //Else loop on the threads to calculate the thread id.
+            if(threadId != UINT_MAX)return threadId;
             for(unsigned int i = 0; i < threads.size(); i++) {
                 if(threads[i]->get_id() == std::this_thread::get_id()) {
                     threadId = i;
-                    //printf("JJ1 %d\n", (int)threadId);
-            
                     return threadId;
                 }
             }
-            //printf("JJ2 %d\n", (int)threadId);
-            
+            assert(false); // Impossible
             return threadId;
         }
 
-
-        //Inline getter/setter
-        inline unsigned int getId() { return idGroup; }
-
+        /*
+         * Return the id of a group
+         */
+        inline unsigned int getGroupId() { return idGroup; }
+        inline unsigned int getTaskId() { return currentTasksId[getThreadId()];}
 
         inline unsigned int getNbThreads() { return nbThreads; }
 
@@ -234,7 +223,7 @@ namespace pFactory {
 
     private:
 
-        void wrapperFunction(unsigned int num);
+        void wrapperFunction();
 
         void wrapperWaitting(unsigned int seconds);
 
@@ -242,12 +231,16 @@ namespace pFactory {
         std::vector<std::thread *> threads;
         std::vector <std::function<int()>> tasks;
         std::vector <std::function<int()>> tasksSave;
+
+        std::vector<unsigned int> currentTasksId;
         std::vector<int> returnCodes;
+        
 
         volatile bool testStop;
 
         unsigned int idGroup;
         unsigned int nbThreads;
+        unsigned int nbTasks;
         unsigned int nbLaunchedTasks;
 
         //For the concurrent mode

@@ -40,11 +40,12 @@ namespace pFactory{
     
   
     Group::Group(unsigned int pnbThreads):
-        threadsId(new std::vector<unsigned int>(pnbThreads, 0)),
         barrier(pnbThreads),
+        currentTasksId(pnbThreads, 0),
         testStop(false),
         idGroup(Group::groupCount++),
         nbThreads(pnbThreads),
+        nbTasks(0),
         nbLaunchedTasks(0),
         concurrent(false),
         winnerConcurrentThreads(UINT_MAX),
@@ -55,7 +56,7 @@ namespace pFactory{
         isStarted(false)
     {
         startedBarrier = new Barrier(pnbThreads+1);
-        for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
+        for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
@@ -80,7 +81,7 @@ namespace pFactory{
         startedBarrier = new Barrier(nbThreads+1);
         //Threads
         threads.clear();
-        for (unsigned int i = 0;i<nbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this,i));
+        for (unsigned int i = 0;i<nbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
         //Tasks
         tasks.clear();
         for (auto task : tasksSave)tasks.push_back(task);
@@ -101,8 +102,8 @@ namespace pFactory{
     }
 
     void Group::add(const std::function<int()> &function){
+        nbTasks++;
         tasks.push_back(function);
-	    returnCodes.push_back(-1);
         tasksSave.push_back(function);
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
@@ -150,12 +151,11 @@ namespace pFactory{
     }
 
 
-    void Group::wrapperFunction(unsigned int num){
+    void Group::wrapperFunction(){
         //Create a wrapper unique lock for the mutex 
         std::unique_lock<std::mutex> tasksLock(tasksMutex,std::defer_lock);
         // wait that the user calls start() para:
         startedBarrier->wait();
-        int idTask = 0;
         //Take a task
         while(true){
             tasksLock.lock();
@@ -163,24 +163,27 @@ namespace pFactory{
             if(!tasks.size())return;
             //Get a task
             std::function<int()> function = tasks.back();
-            idTask = tasks.size()-1;
-	        tasks.pop_back();
+            tasks.pop_back();
+            currentTasksId[getThreadId()] = nbLaunchedTasks;
             nbLaunchedTasks++;
             tasksLock.unlock();
             //Launch a task  
             if(VERBOSE)
-                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",idGroup,idTask,num);
+                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getGroupId());
             int returnCode = function();  
-	        returnCodes[idTask] = returnCode;
+	        tasksLock.lock();
+            returnCodes.push_back(returnCode);
+            tasksLock.unlock();
+            
             //We have kill all others threads ! 
             tasksLock.lock(); 
             if(concurrent && winnerConcurrentThreads == UINT_MAX){
-                winnerConcurrentThreads=num;
+                winnerConcurrentThreads=getThreadId();
                 winnerConcurrentReturnCode=returnCode;
-                winnerConcurrentTask=idTask;
+                winnerConcurrentTask=getTaskId();
                 stop();
                 if(VERBOSE)
-                    printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",idGroup,num,idTask);
+                    printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getGroupId(),getGroupId(),getTaskId());
                 return;
 
             }

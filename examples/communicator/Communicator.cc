@@ -36,12 +36,13 @@ int main() {
     
     for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
         // Add as many tasks as threads in the group
-        group.add([&, i]() {
+        group.add([&]() {
             // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
-            pFactory::cout() << "Task" << std::to_string(i) << " (on the thread "<< group.getThreadId() <<") sends: " << group.getThreadId() << std::endl;
+            pFactory::cout() << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") sends: " << group.getTaskId() << std::endl;
             
             // group.getThreadId() return the id of a thread that execute this function for a group
-            integerCommunicator.send(group.getThreadId());
+            // group.getTaskId() return the id of this task for a group
+            integerCommunicator.send(group.getTaskId());
             
             // A group has a barrier to wait all tasks at the same moment of the execution 
             // Here, this barrier is used to wait that all tasks are sent their data 
@@ -59,7 +60,7 @@ int main() {
             
 #else
             /* With recv function */
-            msg << "Task" << i << " (on the thread "<< group.getThreadId() <<") receives:";
+            msg << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") receives:";
             int data;
             while(integerCommunicator.recv(data) != false)
                 msg << data << ' ';

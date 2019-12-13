@@ -27,9 +27,9 @@ int main(){
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     // A task is represented by a C++11 lambda function 
     // The capture list [i, &group] meaning that i (resp. group) is captured by value (resp. by reference)  
-    group.add([i, &group](){
+    group.add([&](){
         // pFactory::cout() provides a special critical section for displaying information
-	      pFactory::cout() << "Task " << i << " (on the thread " << group.getThreadId() << ") says Hello World" << std::endl;
+	      pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") says Hello World" << std::endl;
 	      return 0;
       });
   }

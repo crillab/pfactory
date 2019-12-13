@@ -42,17 +42,14 @@ int main() {
         });
         
         group2.add([&]() {
-            pFactory::cout() << "True id: " <<std::this_thread::get_id() << "- id: " << group2.getThreadId() << std::endl;
-            
-            //pFactory::cout() << "Launch " << group2.getThreadId() << " limit:" << nbThreadsBarrier << std::endl;
-            if (group2.getThreadId() < nbThreadsBarrier){
-                //pFactory::cout() << "Before the first call to the barrier !" << std::endl;
+            if (group2.getTaskId() < nbThreadsBarrier){
+                pFactory::cout() << "Before the first call to the barrier !" << std::endl;
                 myBarrier.wait();
-                //pFactory::cout() << "Before the second call to the barrier and after the first call!" << std::endl;
+                pFactory::cout() << "Before the second call to the barrier and after the first call!" << std::endl;
                 myBarrier.wait();
-                //pFactory::cout() << "After all calls to the barrier!" << std::endl;
+                pFactory::cout() << "After all calls to the barrier!" << std::endl;
             }else{
-                //pFactory::cout() << "Without barrier! " << group2.getThreadId() << std::endl;
+                pFactory::cout() << "Without barrier on the task " << group2.getTaskId() << " !" << std::endl;
             }
             return 0;
         });
@@ -61,7 +58,7 @@ int main() {
     std::cout << "A barrier of "<< nbThreads << " threads on the group of " << nbThreads << " threads:"<< std::endl;
     group1.start(); 
     group1.wait();
-
+     
     std::cout << "A barrier of "<< nbThreadsBarrier << " threads on the group of " << nbThreads << " threads:"<< std::endl;
     group2.start(); 
     group2.wait();
