@@ -27,6 +27,7 @@ AC_OUTPUT(examples/display/Makefile)
 AC_OUTPUT(examples/communicator/Makefile)
 AC_OUTPUT(examples/restrictedcommunicator/Makefile)
 AC_OUTPUT(examples/barrier/Makefile)
+AC_OUTPUT(examples/staticDC/Makefile)
 
 #AC_OUTPUT(examples/intercommunicator/Makefile)
 #AC_OUTPUT(examples/groups/Makefile)

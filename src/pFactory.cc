@@ -102,9 +102,11 @@ namespace pFactory{
     }
 
     void Group::add(const std::function<int()> &function){
+
         nbTasks++;
         tasks.push_back(function);
         tasksSave.push_back(function);
+        returnCodes.push_back(TASK_NOT_STARTED);
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
     }
@@ -122,7 +124,7 @@ namespace pFactory{
                 printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winnerConcurrentReturnCode,winnerConcurrentThreads);
             return winnerConcurrentReturnCode;
         }
-	return 0;
+	    return 0;
     }
 
     int Group::kill(){
@@ -154,25 +156,29 @@ namespace pFactory{
     void Group::wrapperFunction(){
         //Create a wrapper unique lock for the mutex 
         std::unique_lock<std::mutex> tasksLock(tasksMutex,std::defer_lock);
+        thread_local static unsigned int currentTaskId = 0;
         // wait that the user calls start() para:
         startedBarrier->wait();
         //Take a task
         while(true){
             tasksLock.lock();
             //if there are no more tasks
-            if(!tasks.size())return;
+            if(!tasks.size() || testStop){
+                return;
+            }
             //Get a task
             std::function<int()> function = tasks.back();
             tasks.pop_back();
             currentTasksId[getThreadId()] = nbLaunchedTasks;
+            currentTaskId = nbLaunchedTasks;
             nbLaunchedTasks++;
             tasksLock.unlock();
             //Launch a task  
             if(VERBOSE)
-                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getGroupId());
+                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getThreadId());
             int returnCode = function();  
-	        tasksLock.lock();
-            returnCodes.push_back(returnCode);
+            tasksLock.lock();
+            returnCodes[currentTaskId]=returnCode;
             tasksLock.unlock();
             
             //We have kill all others threads ! 

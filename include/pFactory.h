@@ -42,6 +42,7 @@
 
 namespace pFactory {
     const int VERBOSE = 0;
+    const int TASK_NOT_STARTED = -1;
 
     /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
     static std::mutex std_mutex;

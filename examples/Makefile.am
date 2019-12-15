@@ -1,2 +1,2 @@
-SUBDIRS = helloworld display communicator restrictedcommunicator barrier
+SUBDIRS = helloworld display communicator restrictedcommunicator barrier staticDC
 
