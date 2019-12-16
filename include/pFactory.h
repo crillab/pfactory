@@ -43,7 +43,7 @@
 namespace pFactory {
     const int VERBOSE = 0;
     const int TASK_NOT_STARTED = -1;
-
+    
     /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
     static std::mutex std_mutex;
     
@@ -99,6 +99,31 @@ namespace pFactory {
 
     unsigned int getNbCores();
 
+    /* To represent a winner in a concurrential method */
+    class Winner {
+        public:
+            Winner(unsigned int pthreadId, unsigned int ptaskId, unsigned int preturnCode)
+                : threadId(pthreadId), taskId(ptaskId), returnCode(preturnCode){}
+        
+            inline unsigned int getThreadId(){return threadId;}
+            inline unsigned int getTaskId(){return taskId;}
+            inline unsigned int getReturnCode(){return returnCode;}
+
+            inline void setWinner(unsigned int pthreadId, unsigned int ptaskId, unsigned int preturnCode){
+                threadId=pthreadId;
+                taskId=ptaskId;
+                returnCode=preturnCode;
+            }
+        
+        private:
+            unsigned int threadId;
+            unsigned int taskId;
+            unsigned int returnCode;
+
+            
+
+    };
+
     /* An instance of the class group represent :
         - a set of threads (std::thread*)
         - a set of tasks (std::function<int())
@@ -109,6 +134,8 @@ namespace pFactory {
     public:
         //Barrier for the user
         Barrier barrier;
+
+        
 
         /* The constructor of a group
         \param pnbThreads the number of threads
@@ -190,44 +217,26 @@ namespace pFactory {
             assert(false); // Impossible
             return threadId;
         }
-
-        /*
-         * Return the id of a group
-         */
-        inline unsigned int getGroupId() { return idGroup; }
+        inline unsigned int getGroupId() { return idGroup;}
         inline unsigned int getTaskId() { return currentTasksId[getThreadId()];}
-
-        inline unsigned int getNbThreads() { return nbThreads; }
-
-
-        inline unsigned int getNbLaunchedTasks() { return nbLaunchedTasks; }
-
-
-        inline unsigned int getWinnerConcurrentThreads() { return winnerConcurrentThreads; }
-
-
-        inline unsigned int getwinnerConcurrentReturnCode() { return winnerConcurrentReturnCode; }
-
-
-        inline unsigned int getWinnerConcurrentTask() { return winnerConcurrentTask; }
-
-
+        inline unsigned int getNbThreads() { return nbThreads;}
+        inline unsigned int getNbLaunchedTasks() { return nbLaunchedTasks;}
         inline std::vector<int> &getReturnCodes() { return returnCodes; }
-
 
         //To stop tasks
         inline void stop() { testStop = true; }
-
-
         inline bool isStopped() { return testStop; }
 
+        inline Winner& getWinner(){return winner;}
 
     private:
 
         void wrapperFunction();
 
         void wrapperWaitting(unsigned int seconds);
-
+        // Winner of the concurrential method    
+        Winner winner;
+        
         //General variables for a group
         std::vector<std::thread *> threads;
         std::vector <std::function<int()>> tasks;
@@ -246,9 +255,6 @@ namespace pFactory {
 
         //For the concurrent mode
         bool concurrent;
-        unsigned int winnerConcurrentThreads;
-        unsigned int winnerConcurrentReturnCode;
-        unsigned int winnerConcurrentTask;
 
         //For the mutual exclusions
         Barrier *startedBarrier;
