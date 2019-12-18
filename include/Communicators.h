@@ -82,6 +82,10 @@ private:
     std::vector<unsigned int> nbRecv;
     std::vector<unsigned int> nbRecvAll;
 
+
+protected:
+    Communicator(Group& g, bool withInitialize);
+
 public:
     Communicator(Group& g);
     Communicator(Group& g, const std::vector<bool>& senders, const std::vector<bool>& receivers);
@@ -95,10 +99,7 @@ public:
     void deleteOrderPointer();
     void removePointer(unsigned int queue, unsigned int thread);
 
-    inline static void vectorThreadsToVectorBool(const std::vector<unsigned int>& vecInt, std::vector<bool>& results){
-        for (unsigned int i = 0; i < vecInt.size(); i++)results[vecInt[i]] = true;
-    }
-
+   
     /*Send a data to others threads
           \param data Data to send
           Warning : user may pass a copŷ
@@ -350,64 +351,40 @@ public:
 
 template <class T>
 Communicator<T>::Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers)
-    : group(g),
-      nbThreads(g.getNbThreads()),
-      
-      senders(std::vector<bool>(g.getNbThreads(), false)),
-      receivers(std::vector<bool>(g.getNbThreads(), false)),
-      
-      vectorOfQueues(nbThreads),
-      threadMutexs(nbThreads),
-      threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
-      threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
-      threadOrdersPointerStart(nbThreads, NULL),
-      threadOrdersPointerEnd(nbThreads, NULL),
-
-      minQueuesPointer(nbThreads),
-      minSecondQueuesPointer(nbThreads),
-
-      nbSend(nbThreads),
-      nbRecv(nbThreads),
-      nbRecvAll(nbThreads)
+    : Communicator<T>::Communicator(g, false)
 {
-    vectorThreadsToVectorBool(p_senders, senders);
-    vectorThreadsToVectorBool(p_receivers, receivers);
+    for (unsigned int i = 0; i < senders.size(); i++)senders[i] = false;
+    for (unsigned int x : p_senders)senders[x] = true;
+    for (unsigned int i = 0; i < receivers.size(); i++)receivers[i] = false;
+    for (unsigned int x : p_receivers)receivers[x] = true;    
     initialize();  
 }
 
 template <class T>
 Communicator<T>::Communicator(Group& g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
-    : group(g),
-      nbThreads(g.getNbThreads()),
-      
-      senders(p_senders),
-      receivers(p_receivers),
-      
-      vectorOfQueues(nbThreads),
-      threadMutexs(nbThreads),
-      threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
-      threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
-      threadOrdersPointerStart(nbThreads, NULL),
-      threadOrdersPointerEnd(nbThreads, NULL),
-
-      minQueuesPointer(nbThreads),
-      minSecondQueuesPointer(nbThreads),
-
-      nbSend(nbThreads),
-      nbRecv(nbThreads),
-      nbRecvAll(nbThreads)
+    : Communicator<T>::Communicator(g, false)
 {
+    senders = p_senders;
+    receivers = p_receivers;
     initialize();
 }
 
 
+
 template <class T>
 Communicator<T>::Communicator(Group& g)
+    : Communicator<T>::Communicator(g, false)
+{
+    initialize();
+}
+
+template <class T>
+Communicator<T>::Communicator(Group& g, bool withInitialize)
     : group(g),
       nbThreads(g.getNbThreads()),
       
-      senders(std::vector<bool>(g.getNbThreads(), true)),
-      receivers(std::vector<bool>(g.getNbThreads(), true)),
+      senders(std::vector<bool>(nbThreads, true)),
+      receivers(std::vector<bool>(nbThreads, true)),
       
       vectorOfQueues(nbThreads),
       threadMutexs(nbThreads),
@@ -423,7 +400,7 @@ Communicator<T>::Communicator(Group& g)
       nbRecv(nbThreads),
       nbRecvAll(nbThreads)
 {
-    initialize();
+    if (withInitialize == true)initialize();
 }
 
 /* To delete a pointer (swap and delete)*/

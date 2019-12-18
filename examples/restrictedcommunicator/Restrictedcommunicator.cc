@@ -19,7 +19,7 @@
 
 void communication(pFactory::Group& group, pFactory::Communicator<int>& communicator){
    
-    communicator.send(group.getTaskId());
+    communicator.send(group.getThreadId());
 
     //To wait that all data are sent
     group.barrier.wait();
@@ -28,7 +28,7 @@ void communication(pFactory::Group& group, pFactory::Communicator<int>& communic
     std::stringstream msg;
 
     communicator.recvAll(data);
-    msg << "Task " << group.getTaskId() << " receives: ";
+    msg << "Thread (not task!) " << group.getThreadId() << " receives: ";
     for(unsigned int j = 0; j < data.size(); ++j)
         msg  << data[j] << ' ';
     pFactory::cout() << msg.str() << std::endl;
@@ -38,7 +38,6 @@ int main() {
     unsigned int nbThreads = 8; 
     pFactory::Group group(nbThreads);
     
-
     pFactory::Communicator<int> integerCommunicator1(group, {0,1,2,3}, {4,5,6,7});
     pFactory::Communicator<int> integerCommunicator2(group, {0,1,2,3,4,5}, {2,3,4,5,6,7});
     pFactory::Communicator<int> integerCommunicator3(group, {0,1}, {6,7});
