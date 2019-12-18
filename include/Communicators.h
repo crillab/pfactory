@@ -43,7 +43,7 @@ template <class T>
 class Communicator
 {
 private:
-    Group *group; /* Group of threads that have to communicate */ 
+    Group& group; /* Group of threads that have to communicate */ 
     const unsigned int nbThreads; /* Number of threads */ 
 
     /* Used to know the allowed senders for the communications in the associated group */ 
@@ -83,9 +83,9 @@ private:
     std::vector<unsigned int> nbRecvAll;
 
 public:
-    Communicator(Group *g);
-    Communicator(Group *g, const std::vector<bool>& senders, const std::vector<bool>& receivers);
-    Communicator(Group *g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers);
+    Communicator(Group& g);
+    Communicator(Group& g, const std::vector<bool>& senders, const std::vector<bool>& receivers);
+    Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers);
 
     void initialize();
 
@@ -101,7 +101,7 @@ public:
         */
     inline void send(T data)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         if (senders[threadId] == false){
             //printf("Warning: no data sent in a send() operation by a thread of a group that not is in the senders !");
             return;
@@ -117,7 +117,7 @@ public:
          */
     inline bool isEmpty()
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
             //Browse all queue except the queue of this thread
@@ -190,7 +190,7 @@ public:
         */
     inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         if (!receivers[threadId]) return; //If this thread is not a receiver, do nothing !
 
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
@@ -273,7 +273,7 @@ public:
         */
     inline bool recv(T &data, bool &isLast)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
             //Browse all queue except the queue of this thread
@@ -345,12 +345,12 @@ public:
 
 
 template <class T>
-Communicator<T>::Communicator(Group *g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers)
+Communicator<T>::Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers)
     : group(g),
-      nbThreads(g->getNbThreads()),
+      nbThreads(g.getNbThreads()),
       
-      senders(std::vector<bool>(g->getNbThreads(), false)),
-      receivers(std::vector<bool>(g->getNbThreads(), false)),
+      senders(std::vector<bool>(g.getNbThreads(), false)),
+      receivers(std::vector<bool>(g.getNbThreads(), false)),
       
       vectorOfQueues(nbThreads),
       threadMutexs(nbThreads),
@@ -372,9 +372,9 @@ Communicator<T>::Communicator(Group *g, std::initializer_list<unsigned int> p_se
 }
 
 template <class T>
-Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
+Communicator<T>::Communicator(Group& g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
     : group(g),
-      nbThreads(g->getNbThreads()),
+      nbThreads(g.getNbThreads()),
       
       senders(p_senders),
       receivers(p_receivers),
@@ -398,12 +398,12 @@ Communicator<T>::Communicator(Group *g, const std::vector<bool>& p_senders, cons
 
 
 template <class T>
-Communicator<T>::Communicator(Group *g)
+Communicator<T>::Communicator(Group& g)
     : group(g),
-      nbThreads(g->getNbThreads()),
+      nbThreads(g.getNbThreads()),
       
-      senders(std::vector<bool>(g->getNbThreads(), true)),
-      receivers(std::vector<bool>(g->getNbThreads(), true)),
+      senders(std::vector<bool>(g.getNbThreads(), true)),
+      receivers(std::vector<bool>(g.getNbThreads(), true)),
       
       vectorOfQueues(nbThreads),
       threadMutexs(nbThreads),

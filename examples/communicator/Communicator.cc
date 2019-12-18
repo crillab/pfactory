@@ -31,7 +31,7 @@
 int main() {
     // A group of nbCores threads 
     pFactory::Group group(pFactory::getNbCores());
-    pFactory::Communicator<int> integerCommunicator(&group);
+    pFactory::Communicator<int> integerCommunicator(group);
     
     for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
         // Add as many tasks as threads in the group

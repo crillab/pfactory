@@ -39,10 +39,10 @@ int main() {
     pFactory::Group group(nbThreads);
     
 
-    pFactory::Communicator<int> integerCommunicator1(&group, {0,1,2,3}, {4,5,6,7});
-    pFactory::Communicator<int> integerCommunicator2(&group, {0,1,2,3,4,5}, {2,3,4,5,6,7});
-    pFactory::Communicator<int> integerCommunicator3(&group, {0,1}, {6,7});
-    pFactory::Communicator<int> integerCommunicator4(&group, {1,2,3,4,5,6,7}, {0});
+    pFactory::Communicator<int> integerCommunicator1(group, {0,1,2,3}, {4,5,6,7});
+    pFactory::Communicator<int> integerCommunicator2(group, {0,1,2,3,4,5}, {2,3,4,5,6,7});
+    pFactory::Communicator<int> integerCommunicator3(group, {0,1}, {6,7});
+    pFactory::Communicator<int> integerCommunicator4(group, {1,2,3,4,5,6,7}, {0});
     
     for(unsigned int i = 0; i < nbThreads; i++) {
         group.add([&]() {
