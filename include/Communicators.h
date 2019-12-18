@@ -90,7 +90,11 @@ public:
     void initialize();
 
     ~Communicator();
-    
+
+    void createOrderPointer();
+    void deleteOrderPointer();
+    void removePointer(unsigned int queue, unsigned int thread);
+
     inline static void vectorThreadsToVectorBool(const std::vector<unsigned int>& vecInt, std::vector<bool>& results){
         for (unsigned int i = 0; i < vecInt.size(); i++)results[vecInt[i]] = true;
     }
@@ -422,17 +426,18 @@ Communicator<T>::Communicator(Group& g)
     initialize();
 }
 
+/* To delete a pointer (swap and delete)*/
+template <class T>
+void Communicator<T>::removePointer(unsigned int queue, unsigned int thread){
+    threadOrdersPointer[queue][thread]->next->previous = threadOrdersPointer[queue][thread]->previous;
+    threadOrdersPointer[queue][thread]->previous->next = threadOrdersPointer[queue][thread]->next;
+    delete threadOrdersPointer[queue][thread];
+    threadOrdersPointer[queue][thread] = NULL;
+}
+
+
 template <class T>
 void Communicator<T>::initialize(){
-    /* To delete a pointer (swap and delete)*/
-    auto removePointer = [&](unsigned int queue, unsigned int thread) 
-    { 
-        threadOrdersPointer[queue][thread]->next->previous = threadOrdersPointer[queue][thread]->previous;
-        threadOrdersPointer[queue][thread]->previous->next = threadOrdersPointer[queue][thread]->next;
-        delete threadOrdersPointer[queue][thread];
-        threadOrdersPointer[queue][thread] = NULL;
-    };
-
     for (unsigned int i = 0; i < nbThreads; i++)
     {
         if (senders[i]){ //Only if i is a sender thread !
@@ -469,8 +474,7 @@ void Communicator<T>::initialize(){
 }
 
 template <class T>
-Communicator<T>::~Communicator()
-{
+void Communicator<T>::deleteOrderPointer(){
     for (unsigned int i = 0; i < nbThreads; i++)
     {
         std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[i];
@@ -479,6 +483,12 @@ Communicator<T>::~Communicator()
             delete ordersPointer[j];
         delete threadOrdersPointerEnd[i];
     }
+} 
+
+template <class T>
+Communicator<T>::~Communicator()
+{
+    deleteOrderPointer();
 }
 } // namespace pFactory
 
