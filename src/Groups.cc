@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "pFactory.h"
+#include "Groups.h"
 #include "../include/Barrier.h"
 #include <iostream>
 #include <mutex>

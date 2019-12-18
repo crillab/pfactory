@@ -16,8 +16,6 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pFactory.h"
-#include "Communicators.h"
-#include <sstream> 
 
 void communication(pFactory::Group& group, pFactory::Communicator<int>& communicator){
    

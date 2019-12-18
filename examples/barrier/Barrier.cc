@@ -16,9 +16,6 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "pFactory.h"
-#include "Communicators.h"
-#include <sstream> 
-
 
 int main() {
     unsigned int nbThreads = 8;

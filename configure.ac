@@ -21,6 +21,7 @@ LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS -I$PWD/include $PTHREAD_CFLAGS"
 
 AC_OUTPUT(Makefile)
+AC_OUTPUT(src/Makefile)
 AC_OUTPUT(examples/Makefile)
 AC_OUTPUT(examples/helloworld/Makefile)
 AC_OUTPUT(examples/display/Makefile)

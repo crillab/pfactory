@@ -15,9 +15,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 #include "pFactory.h"
-#include "Communicators.h"
-#include <sstream> 
 
 // In this example, each thread share an integer to the others.
 // The mutex is used only for displaying data in a smart way.
