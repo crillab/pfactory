@@ -30,10 +30,10 @@ class Intercommunicator : Communicator<T>
     public:
     
         Intercommunicator(Group& psenderGroup, Group& preceiverGroup)
-            :Communicator<T>::Communicator(psenderGroup),
+            :Communicator<T>::Communicator(psenderGroup, false),
             receiverGroup(preceiverGroup)
         {
-            this->deleteOrderPointer();
+            
         }
         
         /* Receive all elements from the communicator.
