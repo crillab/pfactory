@@ -31,6 +31,7 @@ AC_OUTPUT(examples/intercommunicator/Makefile)
 AC_OUTPUT(examples/barrier/Makefile)
 AC_OUTPUT(examples/staticDC/Makefile)
 AC_OUTPUT(examples/concurrent/Makefile)
+AC_OUTPUT(examples/multipleconcurrents/Makefile)
 
 #AC_OUTPUT(examples/groups/Makefile)
 

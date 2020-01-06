@@ -49,6 +49,10 @@ namespace pFactory{
             printf("c [pFactory][Group N°%d] created (threads:%d).\n",idGroup,pnbThreads);
     }
 
+    Group::Group(const Group& toCopy):
+        Group(toCopy.getNbThreads())
+    {}
+
 
     
     void Group::reload(){

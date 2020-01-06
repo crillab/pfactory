@@ -66,7 +66,7 @@ namespace pFactory {
         */
         explicit Group(unsigned int pnbThreads);
 
-        explicit Group(const Group &) = delete;
+        explicit Group(const Group&);
 
         Group const & operator=(Group &&g) = delete;
 
@@ -142,11 +142,11 @@ namespace pFactory {
             assert(false); // Impossible
             return threadId;
         }
-        inline unsigned int getGroupId() { return idGroup;}
-        inline unsigned int getTaskId() { return currentTasksId[getThreadId()];}
-        inline unsigned int getNbThreads() { return nbThreads;}
-        inline unsigned int getNbLaunchedTasks() { return nbLaunchedTasks;}
-        inline std::vector<int> &getReturnCodes() { return returnCodes; }
+        inline unsigned int getGroupId() const {return idGroup;}
+        inline unsigned int getTaskId() {return currentTasksId[getThreadId()];}
+        inline unsigned int getNbThreads() const {return nbThreads;}
+        inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
+        inline std::vector<int> &getReturnCodes() {return returnCodes; }
 
         //To stop tasks
         inline void stop() { testStop = true; }
