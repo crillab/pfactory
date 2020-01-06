@@ -34,19 +34,36 @@ int main() {
     pFactory::Group group2(nbTasks);
     
     pFactory::Intercommunicator<int> integerIntercommunicator(group1, group2);
-    
+    pFactory::Barrier mybarrier(pFactory::getNbCores());
+
     for(unsigned int i = 0; i < nbTasks; i++) {
-        // Add as many tasks as threads in the group
         group1.add([&]() {
-            // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
-            pFactory::cout() << "Task" << group1.getTaskId() << " (on the thread "<< group1.getThreadId() <<") sends: " << group1.getTaskId() << std::endl;
-
-
+            pFactory::cout() << "Groupe 1: Task" << group1.getTaskId() << " (on the thread "<< group1.getThreadId() <<") sends: " << group1.getTaskId() << std::endl;
+            
+            integerIntercommunicator.send(group1.getTaskId());
+            mybarrier.wait(); //To ensure that all messages are sent before the receive operation.
             return 0;
         });
+
+        group2.add([&]() {
+            mybarrier.wait(); //To ensure that all messages are sent before the receive operation.
+
+            /* With recvAll function */
+            std::vector<int> data;
+            std::stringstream msg;
+            integerIntercommunicator.recvAll(data);
+            msg << "Groupe 2: Task" << group2.getTaskId() << " (on the thread "<< group2.getThreadId() <<") receives:";
+            for(unsigned int j = 0; j < data.size(); ++j)
+                msg << data[j] << ' ';
+            pFactory::cout() << msg.str() << std::endl;
+            return 0;
+        });
+
+
     }
-    // Start the computation of all tasks
-    group1.start();
-    // Wait until all threads are performed all tasks 
+
+    pFactory::start(group1, group2);
+
     group1.wait();
+    group2.wait();
 }

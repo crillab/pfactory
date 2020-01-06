@@ -24,7 +24,7 @@ namespace pFactory
 {
     
 template <class T>
-class Intercommunicator : Communicator<T>
+class Intercommunicator : public Communicator<T>
 {
     private:
         Group& receiverGroup;
@@ -52,13 +52,20 @@ class Intercommunicator : Communicator<T>
                 }
             }
         }
+
+        inline void recvAll(std::vector<T> &data)
+        {
+            std::vector<T> noDataLast;
+            recvAll(data, noDataLast, false);
+        }
+        
         /* Receive all elements from the intercommunicator.
            \param dataNotLast Elements which have not been received by all threads
            \param dataLast Elements which have been received by all threads (others threads have already received the element)
            Remark1: dataNotLast and dataLast are useful to deal with copy
            Remark2: When no data is found, nothing is added in these two parameters
         */
-        inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true)
+        inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true) 
         {
             const unsigned int threadId = receiverGroup.getThreadId();
             if (!this->receivers[threadId]) return; //If this thread is not a receiver, do nothing !

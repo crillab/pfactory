@@ -52,7 +52,7 @@ int main() {
             /* With recvAll function */
             std::vector<int> data;
             integerCommunicator.recvAll(data);
-            msg << "Task" << i << " (on the thread "<< group.getThreadId() <<") receives:";
+            msg << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 msg << data[j] << ' ';
             pFactory::cout() << msg.str() << std::endl;

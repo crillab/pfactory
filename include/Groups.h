@@ -37,12 +37,17 @@
 #include <deque>
 #include <assert.h>
 
-#include "Barrier.h"
+#include <stdarg.h> 
 
+#include "Barrier.h"
 
 namespace pFactory {
     const int VERBOSE = 0;
     const int TASK_NOT_STARTED = -1;
+    
+    
+    
+
     
     /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
     static std::mutex std_mutex;
@@ -149,9 +154,11 @@ namespace pFactory {
 
 
         ~Group() {
-            if (isStarted == false){
+            if (!hasStarted){
                 tasks.clear(); //First clean all tasks
                 startedBarrier->wait(); //Free the barrier
+                wait(); //Join all threads
+            } else if (!hasWaited){
                 wait(); //Join all threads
             }
             delete startedBarrier;
@@ -263,7 +270,8 @@ namespace pFactory {
         //For wait with seconds
         std::thread *waitingThreads;
 
-        bool isStarted;
+        bool hasStarted;
+        bool hasWaited;
 
     };
 
@@ -292,6 +300,22 @@ namespace pFactory {
         std::mutex mutex;
         std::deque <T> queue;
     };
+
+    template <typename T>
+    void start(T& t) // base function
+    {
+        t.start();
+    }
+    
+    template <typename T, typename... Ts>
+    void start(T& t, Ts&... ts) // recursive variadic function
+    {
+        t.start();
+        start(ts...);
+    }
+    
+
+
 }
 
 

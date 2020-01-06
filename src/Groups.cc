@@ -51,7 +51,8 @@ namespace pFactory{
         concurrent(false),
 	    startedBarrier(NULL),
 	    waitingThreads(NULL),
-        isStarted(false)
+        hasStarted(false),
+        hasWaited(false)
     {
         startedBarrier = new Barrier(pnbThreads+1);
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
@@ -62,7 +63,7 @@ namespace pFactory{
 
     
     void Group::reload(){
-        if (isStarted == false){
+        if (!hasStarted or !hasWaited){
             tasks.clear(); //First clean all tasks
             startedBarrier->wait(); //Free the barrier
             wait(); //Join all threads
@@ -70,7 +71,8 @@ namespace pFactory{
         testStop=false;
         nbLaunchedTasks=0;
         concurrent=false;
-        isStarted=false;
+        hasStarted=false;
+        hasWaited=false;
         winner.setWinner(UINT_MAX, UINT_MAX, UINT_MAX);
         //The barrier
         delete startedBarrier;
@@ -92,7 +94,7 @@ namespace pFactory{
             printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrent ? "enabled" : "disabled");
             printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int) tasks.size());
         }
-        isStarted=true;
+        hasStarted=true;
         startedBarrier->wait();
         
     }
@@ -108,6 +110,7 @@ namespace pFactory{
     }
 
     int Group::wait(){
+        hasWaited = true;
         for(unsigned int i = 0; i < nbThreads; i++){
             if(threads[i]->joinable()){
                 threads[i]->join();
