@@ -18,6 +18,8 @@
 #ifndef intercommunicators_H
 #define intercommunicators_H
 
+#include "Communicators.h"
+
 namespace pFactory
 {
     
@@ -30,13 +32,27 @@ class Intercommunicator : Communicator<T>
     public:
     
         Intercommunicator(Group& psenderGroup, Group& preceiverGroup)
-            :Communicator<T>::Communicator(psenderGroup, false),
+            :Communicator<T>::Communicator(psenderGroup, std::vector<bool>(psenderGroup.getNbThreads(), true), std::vector<bool>(preceiverGroup.getNbThreads(), true), false),
             receiverGroup(preceiverGroup)
         {
-            
+            initialize();
         }
-        
-        /* Receive all elements from the communicator.
+
+        inline void initialize() {
+            unsigned int receiverNbThreads = receiverGroup.getNbThreads();
+            for (unsigned int i = 0; i < this->nbThreads; i++)
+            {
+                if (this->senders[i]){ //Only if i is a sender thread !
+                    this->createOrderPointer(i, receiverNbThreads);
+
+                    //Delete the non-receivers pointer
+                    for (unsigned int j = 0; j < receiverNbThreads; j++){
+                        if (!this->receivers[j]) this->removePointer(i, j);
+                    }
+                }
+            }
+        }
+        /* Receive all elements from the intercommunicator.
            \param dataNotLast Elements which have not been received by all threads
            \param dataLast Elements which have been received by all threads (others threads have already received the element)
            Remark1: dataNotLast and dataLast are useful to deal with copy
@@ -50,7 +66,7 @@ class Intercommunicator : Communicator<T>
             for (unsigned int threadIdQueue = 0; threadIdQueue < this->nbThreads; threadIdQueue++)
             {
                 //Browse all queues except the queue of this thread and the queues from threads that are not a sender
-                if (threadIdQueue != threadId && this->senders[threadIdQueue])
+                if (this->senders[threadIdQueue])
                 {
 
                     //These adresses don't move, so no mutex here !

@@ -33,7 +33,7 @@ int main() {
     pFactory::Group group1(nbTasks);
     pFactory::Group group2(nbTasks);
     
-    pFactory::Intercommunicator<int> integerInterommunicator(group1, group2);
+    pFactory::Intercommunicator<int> integerIntercommunicator(group1, group2);
     
     for(unsigned int i = 0; i < nbTasks; i++) {
         // Add as many tasks as threads in the group
@@ -41,7 +41,7 @@ int main() {
             // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
             pFactory::cout() << "Task" << group1.getTaskId() << " (on the thread "<< group1.getThreadId() <<") sends: " << group1.getTaskId() << std::endl;
 
-        
+
             return 0;
         });
     }

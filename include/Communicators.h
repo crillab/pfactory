@@ -42,7 +42,7 @@ public:
 template <class T>
 class Communicator
 {
-private:
+protected:
     Group& group; /* Group of threads that have to communicate */ 
     const unsigned int nbThreads; /* Number of threads */ 
 
@@ -82,20 +82,17 @@ private:
     std::vector<unsigned int> nbRecv;
     std::vector<unsigned int> nbRecvAll;
 
-
-protected:
-    Communicator(Group& g, bool withInitialize);
-
+    
 public:
-    Communicator(Group& g);
-    Communicator(Group& g, const std::vector<bool>& senders, const std::vector<bool>& receivers);
-    Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers);
+    Communicator(Group& g, bool withInitialize=true);
+    Communicator(Group& g, const std::vector<bool>& senders, const std::vector<bool>& receivers, bool withInitialize=true);
+    Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers, bool withInitialize=true);
 
     void initialize();
 
     ~Communicator();
 
-    void createOrderPointer();
+    void createOrderPointer(unsigned int queue, unsigned int lenght);
     void deleteOrderPointer();
     void removePointer(unsigned int queue, unsigned int thread);
 
@@ -350,33 +347,28 @@ public:
 
 
 template <class T>
-Communicator<T>::Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers)
+Communicator<T>::Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers, bool withInitialize)
     : Communicator<T>::Communicator(g, false)
 {
     for (unsigned int i = 0; i < senders.size(); i++)senders[i] = false;
     for (unsigned int x : p_senders)senders[x] = true;
     for (unsigned int i = 0; i < receivers.size(); i++)receivers[i] = false;
     for (unsigned int x : p_receivers)receivers[x] = true;    
-    initialize();  
+    if (withInitialize == true) initialize();  
 }
 
 template <class T>
-Communicator<T>::Communicator(Group& g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers)
+Communicator<T>::Communicator(Group& g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers, bool withInitialize)
     : Communicator<T>::Communicator(g, false)
 {
     senders = p_senders;
     receivers = p_receivers;
-    initialize();
+    if (withInitialize == true) initialize();
 }
 
 
 
-template <class T>
-Communicator<T>::Communicator(Group& g)
-    : Communicator<T>::Communicator(g, false)
-{
-    initialize();
-}
+
 
 template <class T>
 Communicator<T>::Communicator(Group& g, bool withInitialize)
@@ -400,7 +392,7 @@ Communicator<T>::Communicator(Group& g, bool withInitialize)
       nbRecv(nbThreads),
       nbRecvAll(nbThreads)
 {
-    if (withInitialize == true)initialize();
+    if (withInitialize == true) initialize();
 }
 
 /* To delete a pointer (swap and delete)*/
@@ -412,30 +404,35 @@ void Communicator<T>::removePointer(unsigned int queue, unsigned int thread){
     threadOrdersPointer[queue][thread] = NULL;
 }
 
+/* To initialize the double linked list OrderPointer */
+template <class T>
+void Communicator<T>::createOrderPointer(unsigned int queue, unsigned int lenght){
+    std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[queue];
+    //Create OrderPointers 
+    threadOrdersPointerStart[queue] = new OrderPointer();
+    for (unsigned int j = 0; j < lenght; j++)
+        ordersPointer[j] = new OrderPointer(j);
+    threadOrdersPointerEnd[queue] = new OrderPointer();
+    //Set the next pointers
+    threadOrdersPointerStart[queue]->next = ordersPointer[0];
+    for (unsigned int j = 0; j < lenght - 1; j++)
+        ordersPointer[j]->next = ordersPointer[j + 1];
+    ordersPointer[lenght - 1]->next = threadOrdersPointerEnd[queue];
+
+    //Set the previous pointers
+    threadOrdersPointerEnd[queue]->previous = ordersPointer[lenght - 1];
+    for (unsigned int j = lenght - 1; j > 0; j--)
+        ordersPointer[j]->previous = ordersPointer[j - 1];
+    ordersPointer[0]->previous = threadOrdersPointerStart[queue];
+}
 
 template <class T>
 void Communicator<T>::initialize(){
     for (unsigned int i = 0; i < nbThreads; i++)
     {
         if (senders[i]){ //Only if i is a sender thread !
-            std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[i];
-            //Create OrderPointers and set the idThread
-            threadOrdersPointerStart[i] = new OrderPointer();
-            for (unsigned int j = 0; j < nbThreads; j++)
-                ordersPointer[j] = new OrderPointer(j);
-            threadOrdersPointerEnd[i] = new OrderPointer();
-
-            //Set the next pointers
-            threadOrdersPointerStart[i]->next = ordersPointer[0];
-            for (unsigned int j = 0; j < nbThreads - 1; j++)
-                ordersPointer[j]->next = ordersPointer[j + 1];
-            ordersPointer[nbThreads - 1]->next = threadOrdersPointerEnd[i];
-
-            //Set the previous pointers
-            threadOrdersPointerEnd[i]->previous = ordersPointer[nbThreads - 1];
-            for (unsigned int j = nbThreads - 1; j > 0; j--)
-                ordersPointer[j]->previous = ordersPointer[j - 1];
-            ordersPointer[0]->previous = threadOrdersPointerStart[i];
+            //Create OrderPointers
+            createOrderPointer(i, nbThreads);
 
             //The ith queue do not need a pointer of itself
             removePointer(i, i);
