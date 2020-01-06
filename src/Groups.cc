@@ -28,17 +28,6 @@ namespace pFactory{
     
     int Group::groupCount = 0;
     
-    unsigned int getNbCores(){
-        std::ifstream cpuinfo("/proc/cpuinfo");
-        return (!std::thread::hardware_concurrency())?
-        (std::count(std::istream_iterator<std::string>(cpuinfo),
-            std::istream_iterator<std::string>(),
-            std::string("processor"))):
-        std::thread::hardware_concurrency();
-    }
-
-    
-  
     Group::Group(unsigned int pnbThreads):
         barrier(pnbThreads),
         winner(UINT_MAX, UINT_MAX, UINT_MAX),
@@ -48,7 +37,7 @@ namespace pFactory{
         nbThreads(pnbThreads),
         nbTasks(0),
         nbLaunchedTasks(0),
-        concurrent(false),
+        concurrentMode(false),
 	    startedBarrier(NULL),
 	    waitingThreads(NULL),
         hasStarted(false),
@@ -70,7 +59,7 @@ namespace pFactory{
         }
         testStop=false;
         nbLaunchedTasks=0;
-        concurrent=false;
+        concurrentMode=false;
         hasStarted=false;
         hasWaited=false;
         winner.setWinner(UINT_MAX, UINT_MAX, UINT_MAX);
@@ -88,10 +77,9 @@ namespace pFactory{
     }
     
 
-    void Group::start(bool pconcurrent){
-        concurrent=pconcurrent;
+    void Group::start(){
         if(VERBOSE) {
-            printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrent ? "enabled" : "disabled");
+            printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrentMode ? "enabled" : "disabled");
             printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int) tasks.size());
         }
         hasStarted=true;
@@ -118,7 +106,7 @@ namespace pFactory{
                     printf("c [pFactory][Group N°%d] Thread N°%d is joined.\n",idGroup,i);
             }
         }
-        if(concurrent){
+        if(concurrentMode){
             if(VERBOSE)
                 printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winner.getReturnCode(),winner.getThreadId());
             return winner.getReturnCode();
@@ -139,7 +127,7 @@ namespace pFactory{
     int Group::wait(unsigned int seconds){
         std::this_thread::sleep_for(std::chrono::seconds(seconds));
         std::unique_lock<std::mutex> tasksLock(tasksMutex);
-        if(concurrent && winner.getThreadId() != UINT_MAX){
+        if(concurrentMode && winner.getThreadId() != UINT_MAX){
             tasksLock.unlock();   
             return wait();
         }
@@ -182,7 +170,7 @@ namespace pFactory{
             
             //We have kill all others threads ! 
             tasksLock.lock(); 
-            if(concurrent && winner.getThreadId() == UINT_MAX){
+            if(concurrentMode && winner.getThreadId() == UINT_MAX){
                 winner.setWinner(getThreadId(), getTaskId(), returnCode);
                 stop();
                 if(VERBOSE)

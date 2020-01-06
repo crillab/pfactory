@@ -63,7 +63,5 @@ int main() {
     }
 
     pFactory::start(group1, group2);
-
-    group1.wait();
-    group2.wait();
+    pFactory::wait(group1, group2);
 }

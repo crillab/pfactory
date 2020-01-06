@@ -47,10 +47,10 @@ int main(){
   }
   
   // Concurrent mode by adding the parameter true to the method group.start()
-  group.start(true);
-
+  pFactory::start(group.concurrent());
+  
   // Wait until all threads are performed all tasks 
-  group.wait();
+  pFactory::wait(group);
 
   // Display the return codes (pFactory keeps the good return code of each task)
   // >=0 : Tasks finished

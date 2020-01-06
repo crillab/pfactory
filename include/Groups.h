@@ -40,95 +40,13 @@
 #include <stdarg.h> 
 
 #include "Barrier.h"
+#include "Winner.h"
 
 namespace pFactory {
+    
     const int VERBOSE = 0;
     const int TASK_NOT_STARTED = -1;
     
-    
-    
-
-    
-    /* A unique mutex structure to safety display thinks in std::cout or std::cerr */
-    static std::mutex std_mutex;
-    
-    struct cout
-    {
-            std::unique_lock<std::mutex> lk;
-            cout()
-                :
-                lk(std::unique_lock<std::mutex>(std_mutex))
-            {
-
-            }
-
-            template<typename T>
-            cout& operator<<(const T& _t)
-            {
-                std::cout << _t;
-                return *this;
-            }
-
-            cout& operator<<(std::ostream& (*fp)(std::ostream&))
-            {
-                std::cout << fp;
-                return *this;
-            }
-    };
-
-    struct cerr
-    {
-            std::unique_lock<std::mutex> lk;
-            cerr()
-                :
-                lk(std::unique_lock<std::mutex>(std_mutex))
-            {
-
-            }
-
-            template<typename T>
-            cerr& operator<<(const T& _t)
-            {
-                std::cerr << _t;
-                return *this;
-            }
-
-            cerr& operator<<(std::ostream& (*fp)(std::ostream&))
-            {
-                std::cerr << fp;
-                return *this;
-            }
-    };
-
-    class Group; // Say Group exists without defining it.
-
-    unsigned int getNbCores();
-
-    /* To represent a winner in a concurrential method */
-    class Winner {
-        public:
-            Winner(unsigned int pthreadId, unsigned int ptaskId, unsigned int preturnCode)
-                : threadId(pthreadId), taskId(ptaskId), returnCode(preturnCode){}
-        
-            inline unsigned int getThreadId(){return threadId;}
-            inline unsigned int getTaskId(){return taskId;}
-            inline unsigned int getReturnCode(){return returnCode;}
-
-            inline void setWinner(unsigned int pthreadId, unsigned int ptaskId, unsigned int preturnCode){
-                threadId=pthreadId;
-                taskId=ptaskId;
-                returnCode=preturnCode;
-            }
-        
-        private:
-            unsigned int threadId;
-            unsigned int taskId;
-            unsigned int returnCode;
-
-            
-
-    };
-
     /* An instance of the class group represent :
         - a set of threads (std::thread*)
         - a set of tasks (std::function<int())
@@ -177,7 +95,7 @@ namespace pFactory {
         A task is considered as completed when its associated lambda function (given in add()) return
         \param concurrent True to kill all tasks as soon as one task is terminated ()
         */
-        void start(bool concurrent = false);
+        void start();
 
         /* Wait that all tasks are completed (only one in concurrent mode)
         and join all threads
@@ -236,6 +154,11 @@ namespace pFactory {
 
         inline Winner& getWinner(){return winner;}
 
+        inline Group& concurrent(){
+            concurrentMode = true;
+            return *this;
+        }
+
     private:
 
         void wrapperFunction();
@@ -261,7 +184,7 @@ namespace pFactory {
         unsigned int nbLaunchedTasks;
 
         //For the concurrent mode
-        bool concurrent;
+        bool concurrentMode;
 
         //For the mutual exclusions
         Barrier *startedBarrier;
@@ -274,47 +197,6 @@ namespace pFactory {
         bool hasWaited;
 
     };
-
-    template<class T=int>
-    class SafeQueue {
-    public:
-        explicit SafeQueue() {};
-
-
-        inline void push_back(T &ele) {
-            mutex.lock();
-            queue.push_back(ele);
-            mutex.unlock();
-        };
-
-
-        /* Calling this function on an empty container causes undefined behavior. */
-        inline T &pop_back() {
-            mutex.lock();
-            T &ele = queue.back();
-            queue.pop_back();
-            mutex.unlock();
-            return ele;
-        };
-    private:
-        std::mutex mutex;
-        std::deque <T> queue;
-    };
-
-    template <typename T>
-    void start(T& t) // base function
-    {
-        t.start();
-    }
-    
-    template <typename T, typename... Ts>
-    void start(T& t, Ts&... ts) // recursive variadic function
-    {
-        t.start();
-        start(ts...);
-    }
-    
-
 
 }
 
