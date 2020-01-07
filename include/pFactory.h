@@ -3,6 +3,7 @@
 
 #include <sstream> 
 
+#include "Enum.h"
 #include "Groups.h"
 #include "Barrier.h"
 #include "Communicators.h"
@@ -11,8 +12,7 @@
 
 namespace pFactory{
     
-     
-
+    
     unsigned int getNbCores(){
         std::ifstream cpuinfo("/proc/cpuinfo");
         return (!std::thread::hardware_concurrency())?

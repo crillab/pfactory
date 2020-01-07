@@ -15,12 +15,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "Groups.h"
-#include "../include/Barrier.h"
+
 #include <iostream>
 #include <mutex>
 #include <chrono>
 #include <thread>
+
+#include "Groups.h"
+#include "Barrier.h"
+
 
 
 
@@ -31,7 +34,7 @@ namespace pFactory{
     Group::Group(unsigned int pnbThreads):
         barrier(pnbThreads),
         winner(UINT_MAX, UINT_MAX, UINT_MAX),
-        currentTasksId(pnbThreads, 0),
+        CurrentTaskIdPerThread(pnbThreads, 0),
         testStop(false),
         idGroup(Group::groupCount++),
         nbThreads(pnbThreads),
@@ -57,7 +60,7 @@ namespace pFactory{
     
     void Group::reload(){
         if (!hasStarted or !hasWaited){
-            tasks.clear(); //First clean all tasks
+            functionTasks.clear(); //First clean all tasks
             startedBarrier->wait(); //Free the barrier
             wait(); //Join all threads
         }
@@ -74,8 +77,8 @@ namespace pFactory{
         threads.clear();
         for (unsigned int i = 0;i<nbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
         //Tasks
-        tasks.clear();
-        for (auto task : tasksSave)tasks.push_back(task);
+        functionTasks.clear();
+        for (auto task : functionTasksSave)functionTasks.push_back(task);
         if(VERBOSE)
             printf("c [pFactory][Group N°%d] reload (threads:%d).\n",idGroup,nbThreads);
     }
@@ -84,7 +87,7 @@ namespace pFactory{
     void Group::start(){
         if(VERBOSE) {
             printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrentMode ? "enabled" : "disabled");
-            printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int) tasks.size());
+            printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int)functionTasks.size());
         }
         hasStarted=true;
         startedBarrier->wait();
@@ -94,11 +97,12 @@ namespace pFactory{
     void Group::add(const std::function<int()> &function){
 
         nbTasks++;
-        tasks.push_back(function);
-        tasksSave.push_back(function);
-        returnCodes.push_back(TASK_NOT_STARTED);
+        functionTasks.push_back(function);
+        functionTasksSave.push_back(function);
+        infoTasks.push_back(Task());
+
         if(VERBOSE)
-            printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)tasks.size());
+            printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)functionTasks.size());
     }
 
     int Group::wait(){
@@ -147,21 +151,19 @@ namespace pFactory{
     void Group::wrapperFunction(){
         //Create a wrapper unique lock for the mutex 
         std::unique_lock<std::mutex> tasksLock(tasksMutex,std::defer_lock);
-        thread_local static unsigned int currentTaskId = 0;
         // wait that the user calls start() para:
         startedBarrier->wait();
         //Take a task
         while(true){
             tasksLock.lock();
             //if there are no more tasks
-            if(!tasks.size() || testStop){
+            if(!functionTasks.size() || testStop){
                 return;
             }
             //Get a task
-            std::function<int()> function = tasks.back();
-            tasks.pop_back();
-            currentTasksId[getThreadId()] = nbLaunchedTasks;
-            currentTaskId = nbLaunchedTasks;
+            std::function<int()> function = functionTasks.back();
+            functionTasks.pop_back();
+            CurrentTaskIdPerThread[getThreadId()] = nbLaunchedTasks;
             nbLaunchedTasks++;
             tasksLock.unlock();
             //Launch a task  
@@ -169,7 +171,7 @@ namespace pFactory{
                 printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getThreadId());
             int returnCode = function();  
             tasksLock.lock();
-            returnCodes[currentTaskId]=returnCode;
+            infoTasks[getTaskId()].setReturnCode(returnCode);
             tasksLock.unlock();
             
             //We have kill all others threads ! 

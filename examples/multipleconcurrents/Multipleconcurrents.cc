@@ -56,7 +56,7 @@ int main(){
   std::cout << "Random winner will be the task " << randomWinnerTask << " of the group " << randomWinnerGroup << std::endl;
   
   for (unsigned int i = 0;i < nbGroups;i++){
-    groups[i].concurrent(); //Concurrency of tasks (the first task to finish its calculation stop all others tasks of its group)
+    groups[i].concurrent(); //Concurrency of tasks (the first task to finish its calculation stops all others tasks of its group)
     for (unsigned int j = 0;j < nbTasksPerGroup;j++)
       createTask(groups[i], randomWinnerGroup, randomWinnerTask);
   }
@@ -72,7 +72,7 @@ int main(){
 
   for (unsigned int i = 0;i < nbGroups;i++){
     for (unsigned int j = 0;j < nbTasksPerGroup;j++)
-      pFactory::cout() << "Group "<< groups[i].getGroupId() << " - Task " << j << " - Code: " << groups[i].getReturnCodes()[j] << std::endl;
+      pFactory::cout() << "Group "<< groups[i].getGroupId() << " - Task " << j << " - Code: " << groups[i].getInfoTasks()[i].getReturnCode() << std::endl;
     // To get the winner :
     std::cout << "Winner of the group " << groups[i].getGroupId() << " is the task " << groups[i].getWinner().getTaskId() << " (on the thread " << groups[i].getWinner().getThreadId() << ") - returnCode: " << groups[i].getWinner().getReturnCode() << std::endl;
   }

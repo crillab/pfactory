@@ -41,11 +41,12 @@
 
 #include "Barrier.h"
 #include "Winner.h"
+#include "Enum.h"
 
 namespace pFactory {
     
     const int VERBOSE = 0;
-    const int TASK_NOT_STARTED = -1;
+
     
     /* An instance of the class group represent :
         - a set of threads (std::thread*)
@@ -73,7 +74,7 @@ namespace pFactory {
 
         ~Group() {
             if (!hasStarted){
-                tasks.clear(); //First clean all tasks
+                functionTasks.clear(); //First clean all tasks
                 startedBarrier->wait(); //Free the barrier
                 wait(); //Join all threads
             } else if (!hasWaited){
@@ -143,14 +144,15 @@ namespace pFactory {
             return threadId;
         }
         inline unsigned int getGroupId() const {return idGroup;}
-        inline unsigned int getTaskId() {return currentTasksId[getThreadId()];}
+        inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
         inline unsigned int getNbThreads() const {return nbThreads;}
         inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
-        inline std::vector<int> &getReturnCodes() {return returnCodes; }
+        inline std::vector<Task>& getInfoTasks() {return infoTasks;}
+        inline void setTaskStatus(Status _status){infoTasks[getTaskId()].setStatus(_status);}
 
         //To stop tasks
-        inline void stop() { testStop = true; }
-        inline bool isStopped() { return testStop; }
+        inline void stop() {testStop = true;}
+        inline bool isStopped() {return testStop;}
 
         inline Winner& getWinner(){return winner;}
 
@@ -169,11 +171,12 @@ namespace pFactory {
         
         //General variables for a group
         std::vector<std::thread *> threads;
-        std::vector <std::function<int()>> tasks;
-        std::vector <std::function<int()>> tasksSave;
 
-        std::vector<unsigned int> currentTasksId;
-        std::vector<int> returnCodes;
+        std::vector <std::function<int()>> functionTasks;
+        std::vector <std::function<int()>> functionTasksSave;
+        std::vector<Task> infoTasks;
+        
+        std::vector<unsigned int> CurrentTaskIdPerThread;
         
 
         volatile bool testStop;

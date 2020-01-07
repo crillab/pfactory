@@ -29,8 +29,6 @@ int main(){
 
   // Divide phase : add as many tasks as you want
   const static unsigned int nbTasks = 1000;
-  const static int TASK_STOP_GROUP = -2;
-  const static int TASK_STOPPED = -3;
 
   for(unsigned int i = 0; i < nbTasks;i++){
     // A task is represented by a C++11 lambda function 
@@ -41,17 +39,22 @@ int main(){
         if (group.getTaskId() == 500){
           pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") stops the group" << std::endl;
           group.stop();
-          return TASK_STOP_GROUP;
+          group.setTaskStatus(pFactory::Status::stopAllTasks);
+          return (int)group.getTaskId();
         }
 
         // To simulate the task calculation
         for(unsigned int j = 0; j < 50;j++){ 
-          if (group.isStopped()) return TASK_STOPPED; // To stop this task during its calculation if the group have to be stopped
+          if (group.isStopped()){
+            group.setTaskStatus(pFactory::Status::stopped);
+            return (int)group.getTaskId();
+          } // To stop this task during its calculation if the group have to be stopped
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") finished" << std::endl;
 	      
         // The return code of the task that has finished 
+        group.setTaskStatus(pFactory::Status::finished);
         return (int)group.getTaskId();
       });
   }
@@ -69,6 +72,6 @@ int main(){
   // -3 : Tasks that have were stopped during their calculation 
 
   for(unsigned int i = 0; i < nbTasks;i++){
-    std::cout << "Task: " << i << " - code: " << group.getReturnCodes()[i] << std::endl;
+    std::cout << "Task: " << i << " - code: " << group.getInfoTasks()[i].getReturnCode() << " - status: " << group.getInfoTasks()[i].getStatus() << std::endl;
   }
 }

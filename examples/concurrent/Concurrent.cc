@@ -59,7 +59,7 @@ int main(){
   // -3 : Tasks that have were stopped during their calculation 
 
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
-    std::cout << "Task: " << i << " - code: " << group.getReturnCodes()[i] << std::endl;
+    std::cout << "Task: " << i << " - code: " << group.getInfoTasks()[i].getReturnCode() << std::endl;
   }
 
   // To get the winner :
