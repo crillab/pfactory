@@ -79,7 +79,10 @@ namespace pFactory{
 
     void start(Group& t) // base function
     {
-        
+        if (Starter::nbRecurrences == 0){
+            if (Starter::current != NULL) delete Starter::current;
+            Starter::current = new Starter();
+        }
         Starter::current->push_back(&t);
         t.start();
     }
@@ -94,7 +97,7 @@ namespace pFactory{
     template <typename T, typename... Ts>
     Starter& start(T& t, Ts&... ts) // recursive variadic function
     {   
-        if (Starter::nbRecurrences == 0) Starter::current = new Starter();
+        
         Starter::nbRecurrences++;
         start(t);
         start(ts...);

@@ -2,6 +2,9 @@
 #ifndef Enum_H
 #define Enum_H
 
+#include <functional>
+#include <climits>
+
 namespace pFactory{
     
     enum class Status{
@@ -31,30 +34,44 @@ namespace pFactory{
 
     class Task {
         public:
-            Task():
-                id(0),
+            static unsigned int taskCount; //To get the id of a group
+
+            Task(const std::function<int()>& _function):
+                id(taskCount++),
+                function(_function),
+                threadId(UINT_MAX),
                 status(Status::notStarted),
                 returnCode(0)
             {}
             
-
             inline void setId(int _id){id=_id;}
             inline void setReturnCode(int _returnCode){returnCode=_returnCode;}
             inline void setStatus(Status _status){status=_status;}
+            inline void setThreadId(int _threadId){threadId=_threadId;}
 
             inline int getReturnCode(){return returnCode;}
             inline Status getStatus(){return status;}
             inline unsigned int getId(){return id;}
-    
+            inline unsigned int getThreadId(){return threadId;}
 
-
+            inline const std::function<int()>& getFunction(){return function;}
+            
         private:
             unsigned int id;
+            const std::function<int()>& function;
+            unsigned int threadId;
             Status status;
             int returnCode;
 
 
     };
+
+    inline std::ostream& operator<<(std::ostream& os, Task task)
+    {
+        os << "[task " << task.getId() << "]";
+        return os;
+    }
+
 }
 
 

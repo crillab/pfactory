@@ -60,18 +60,18 @@ int main(){
   }
   
   // Conquer phase : start the computation of all tasks
-  group.start();
+  pFactory::start(group);
 
   // Wait until all threads are performed all tasks 
-  group.wait();
+  pFactory::wait(group);
 
   // Display the return codes (pFactory keeps the good return code of each task)
   // >=0 : Tasks finished
   // -1 : Tasks not started 
   // -2 : Task that has stopped the calculation
   // -3 : Tasks that have were stopped during their calculation 
-
-  for(unsigned int i = 0; i < nbTasks;i++){
-    std::cout << "Task: " << i << " - code: " << group.getInfoTasks()[i].getReturnCode() << " - status: " << group.getInfoTasks()[i].getStatus() << std::endl;
-  }
+  
+  for(auto task: group.getTasks())
+    std::cout << "Task: " << task->getId() << " - code: " << task->getReturnCode() << " - status: " << task->getStatus() << std::endl;
+  
 }

@@ -53,7 +53,7 @@ namespace pFactory {
         - a set of tasks (std::function<int())
     */
     class Group {
-        static int groupCount; //To get the id of a group
+        static unsigned int groupCount; //To get the id of a group
 
     public:
         //Barrier for the user
@@ -74,7 +74,8 @@ namespace pFactory {
 
         ~Group() {
             if (!hasStarted){
-                functionTasks.clear(); //First clean all tasks
+                tasksToRun.clear(); //First clean all tasks
+                tasks.clear();
                 startedBarrier->wait(); //Free the barrier
                 wait(); //Join all threads
             } else if (!hasWaited){
@@ -90,7 +91,7 @@ namespace pFactory {
         /* Add a task to this group of threads
         \param function the task using C++11 lambdas
         */
-        void add(const std::function<int()> &function);
+        void add(const std::function<int()>& function);
 
         /* Start the execution of tasks by the threads of the group
         A task is considered as completed when its associated lambda function (given in add()) return
@@ -147,14 +148,16 @@ namespace pFactory {
         inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
         inline unsigned int getNbThreads() const {return nbThreads;}
         inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
-        inline std::vector<Task>& getInfoTasks() {return infoTasks;}
-        inline void setTaskStatus(Status _status){infoTasks[getTaskId()].setStatus(_status);}
+        inline unsigned int getNbTasks() const {return tasks.size();}
+
+        inline std::vector<Task*>& getTasks() {return tasks;}
+        inline void setTaskStatus(Status _status){tasks[getTaskId()]->setStatus(_status);}
 
         //To stop tasks
         inline void stop() {testStop = true;}
         inline bool isStopped() {return testStop;}
 
-        inline Winner& getWinner(){return winner;}
+        inline Task* getWinner(){return winner;}
 
         inline Group& concurrent(){
             concurrentMode = true;
@@ -167,23 +170,19 @@ namespace pFactory {
 
         void wrapperWaitting(unsigned int seconds);
         // Winner of the concurrential method    
-        Winner winner;
+        Task* winner;
         
         //General variables for a group
         std::vector<std::thread *> threads;
-
-        std::vector <std::function<int()>> functionTasks;
-        std::vector <std::function<int()>> functionTasksSave;
-        std::vector<Task> infoTasks;
+        std::vector <Task *> tasks;
+        std::vector <Task *> tasksToRun;
         
         std::vector<unsigned int> CurrentTaskIdPerThread;
         
 
         volatile bool testStop;
-
         unsigned int idGroup;
         unsigned int nbThreads;
-        unsigned int nbTasks;
         unsigned int nbLaunchedTasks;
 
         //For the concurrent mode

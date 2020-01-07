@@ -29,16 +29,16 @@
 
 namespace pFactory{
     
-    int Group::groupCount = 0;
+    unsigned int Task::taskCount = 0;
+    unsigned int Group::groupCount = 0;
     
     Group::Group(unsigned int pnbThreads):
         barrier(pnbThreads),
-        winner(UINT_MAX, UINT_MAX, UINT_MAX),
+        winner(NULL),
         CurrentTaskIdPerThread(pnbThreads, 0),
         testStop(false),
         idGroup(Group::groupCount++),
         nbThreads(pnbThreads),
-        nbTasks(0),
         nbLaunchedTasks(0),
         concurrentMode(false),
 	    startedBarrier(NULL),
@@ -60,7 +60,8 @@ namespace pFactory{
     
     void Group::reload(){
         if (!hasStarted or !hasWaited){
-            functionTasks.clear(); //First clean all tasks
+            tasksToRun.clear(); //First clean all tasks
+            tasks.clear();
             startedBarrier->wait(); //Free the barrier
             wait(); //Join all threads
         }
@@ -69,40 +70,31 @@ namespace pFactory{
         concurrentMode=false;
         hasStarted=false;
         hasWaited=false;
-        winner.setWinner(UINT_MAX, UINT_MAX, UINT_MAX);
+        winner = NULL;
         //The barrier
         delete startedBarrier;
         startedBarrier = new Barrier(nbThreads+1);
-        //Threads
-        threads.clear();
-        for (unsigned int i = 0;i<nbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
-        //Tasks
-        functionTasks.clear();
-        for (auto task : functionTasksSave)functionTasks.push_back(task);
-        if(VERBOSE)
-            printf("c [pFactory][Group N°%d] reload (threads:%d).\n",idGroup,nbThreads);
     }
     
 
     void Group::start(){
         if(VERBOSE) {
             printf("c [pFactory][Group N°%d] concurrent mode: %s.\n", idGroup, concurrentMode ? "enabled" : "disabled");
-            printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int)functionTasks.size());
+            printf("c [pFactory][Group N°%d] computations in progress (threads:%d - tasks:%d).\n", idGroup, nbThreads, (int)getNbTasks());
         }
         hasStarted=true;
         startedBarrier->wait();
         
     }
 
-    void Group::add(const std::function<int()> &function){
-
-        nbTasks++;
-        functionTasks.push_back(function);
-        functionTasksSave.push_back(function);
-        infoTasks.push_back(Task());
+    void Group::add(const std::function<int()>& function){
+        
+        Task* task = new Task(function);
+        tasks.push_back(task);
+        tasksToRun.push_back(task);
 
         if(VERBOSE)
-            printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)functionTasks.size());
+            printf("c [pFactory][Group N°%d] new task added (threads:%d - tasks:%d).\n",idGroup,nbThreads,(int)getNbTasks());
     }
 
     int Group::wait(){
@@ -116,8 +108,8 @@ namespace pFactory{
         }
         if(concurrentMode){
             if(VERBOSE)
-                printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winner.getReturnCode(),winner.getThreadId());
-            return winner.getReturnCode();
+                printf("c [pFactory][Group N°%d] Return Code of the winner:%d (Thread N°%d)\n",idGroup,winner->getReturnCode(),winner->getThreadId());
+            return winner->getReturnCode();
         }
 	    return 0;
     }
@@ -135,7 +127,7 @@ namespace pFactory{
     int Group::wait(unsigned int seconds){
         std::this_thread::sleep_for(std::chrono::seconds(seconds));
         std::unique_lock<std::mutex> tasksLock(tasksMutex);
-        if(concurrentMode && winner.getThreadId() != UINT_MAX){
+        if(concurrentMode && winner != NULL){
             tasksLock.unlock();   
             return wait();
         }
@@ -157,27 +149,32 @@ namespace pFactory{
         while(true){
             tasksLock.lock();
             //if there are no more tasks
-            if(!functionTasks.size() || testStop){
+            if(!tasksToRun.size() || testStop){
                 return;
             }
+            
             //Get a task
-            std::function<int()> function = functionTasks.back();
-            functionTasks.pop_back();
-            CurrentTaskIdPerThread[getThreadId()] = nbLaunchedTasks;
+            Task* task = tasksToRun.back();
+            tasksToRun.pop_back();
+
+            const std::function<int()>& function = task->getFunction();
+            CurrentTaskIdPerThread[getThreadId()] = task->getId();
             nbLaunchedTasks++;
+            
             tasksLock.unlock();
+            
             //Launch a task  
             if(VERBOSE)
                 printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getThreadId());
             int returnCode = function();  
-            tasksLock.lock();
-            infoTasks[getTaskId()].setReturnCode(returnCode);
-            tasksLock.unlock();
             
-            //We have kill all others threads ! 
-            tasksLock.lock(); 
-            if(concurrentMode && winner.getThreadId() == UINT_MAX){
-                winner.setWinner(getThreadId(), getTaskId(), returnCode);
+            tasksLock.lock();
+            
+            tasks[getTaskId()]->setReturnCode(returnCode);
+            tasks[getTaskId()]->setThreadId(getThreadId());
+
+            if(concurrentMode && winner == NULL){
+                winner = tasks[getTaskId()];
                 stop();
                 if(VERBOSE)
                     printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getGroupId(),getGroupId(),getTaskId());

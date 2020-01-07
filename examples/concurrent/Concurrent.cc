@@ -25,7 +25,6 @@
 int main(){
   // A group of nbCores threads 
   pFactory::Group group(pFactory::getNbCores());
-  const static int TASK_STOPPED = -3;
   
   unsigned int randomWinner = std::experimental::randint(0, (int)pFactory::getNbCores()-1);
   std::cout << "Random winner will be the task " << randomWinner << std::endl;
@@ -36,12 +35,16 @@ int main(){
         // To simulate the task calculation according to the tasks id
         unsigned int nbLoops = group.getTaskId() == randomWinner?1000:1010+group.getTaskId();
         for(unsigned int j = 0; j < nbLoops;j++){ 
-          if (group.isStopped()) return TASK_STOPPED; // To stop this task during its calculation if the group have to be stopped
+          if (group.isStopped()){
+             group.setTaskStatus(pFactory::Status::stopped);
+             return (int)group.getTaskId(); // To stop this task during its calculation if the group have to be stopped
+          }
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") finished" << std::endl;
 	      
-        // The return code of the task that has finished 
+        // Set the status of the task that has finished 
+        group.setTaskStatus(pFactory::Status::finished);
         return (int)group.getTaskId();
       });
   }
@@ -58,10 +61,10 @@ int main(){
   // -2 : Task that has stopped the calculation
   // -3 : Tasks that have were stopped during their calculation 
 
-  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
-    std::cout << "Task: " << i << " - code: " << group.getInfoTasks()[i].getReturnCode() << std::endl;
+  for(auto task: group.getTasks()){
+    std::cout << "Task: " << task->getId() << " - code: " << task->getReturnCode() << " - status: " << task->getStatus() << std::endl;
   }
 
   // To get the winner :
-  std::cout << "Winner: " << group.getWinner().getTaskId() << " (on the thread " << group.getWinner().getThreadId() << ") - returnCode: " << group.getWinner().getReturnCode() << std::endl;
+  std::cout << "Winner: " << group.getWinner()->getId() << " (on the thread " << group.getWinner()->getThreadId() << ") - returnCode: " << group.getWinner()->getReturnCode() << std::endl;
 }

@@ -71,9 +71,9 @@ int main(){
   // -3 : Tasks that have were stopped during their calculation 
 
   for (unsigned int i = 0;i < nbGroups;i++){
-    for (unsigned int j = 0;j < nbTasksPerGroup;j++)
-      pFactory::cout() << "Group "<< groups[i].getGroupId() << " - Task " << j << " - Code: " << groups[i].getInfoTasks()[i].getReturnCode() << std::endl;
+    for (auto task: groups[i].getTasks())
+      pFactory::cout() << "Group "<< groups[i].getGroupId() << " - Task " << task->getId() << " - Code: " << task->getReturnCode() << std::endl;
     // To get the winner :
-    std::cout << "Winner of the group " << groups[i].getGroupId() << " is the task " << groups[i].getWinner().getTaskId() << " (on the thread " << groups[i].getWinner().getThreadId() << ") - returnCode: " << groups[i].getWinner().getReturnCode() << std::endl;
+    std::cout << "Winner of the group " << groups[i].getGroupId() << " is the task " << groups[i].getWinner()->getId() << " (on the thread " << groups[i].getWinner()->getThreadId() << ") - returnCode: " << groups[i].getWinner()->getReturnCode() << std::endl;
   }
 }
