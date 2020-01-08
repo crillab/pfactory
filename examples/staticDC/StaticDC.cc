@@ -37,7 +37,7 @@ int main(){
         // You can stop the process calculation when you want thanks to the method group.stop() 
         // It is very usefull if a task induced the interruption of all others tasks 
         if (group.getTaskId() == 500){
-          pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") stops the group" << std::endl;
+          pFactory::cout() << "Task " << group.getTask().getId() << " (on the thread " << group.getThreadId() << ") stops the group!" << std::endl;
           group.stop();
           group.setTaskStatus(pFactory::Status::stopAllTasks);
           return (int)group.getTaskId();
@@ -51,10 +51,10 @@ int main(){
           } // To stop this task during its calculation if the group have to be stopped
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") finished" << std::endl;
-	      
+        
         // The return code of the task that has finished 
         group.setTaskStatus(pFactory::Status::finished);
+        pFactory::cout() << "Task " << group.getTask().getId() << " have finished its work!" << std::endl;
         return (int)group.getTaskId();
       });
   }
@@ -71,7 +71,6 @@ int main(){
   // -2 : Task that has stopped the calculation
   // -3 : Tasks that have were stopped during their calculation 
   
-  for(auto task: group.getTasks())
-    std::cout << "Task: " << task->getId() << " - code: " << task->getReturnCode() << " - status: " << task->getStatus() << std::endl;
+  for(auto &task: group.getTasks()) std::cout << task << std::endl;
   
 }

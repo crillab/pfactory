@@ -3,7 +3,7 @@
 
 #include <sstream> 
 
-#include "Enum.h"
+#include "Task.h"
 #include "Groups.h"
 #include "Barrier.h"
 #include "Communicators.h"

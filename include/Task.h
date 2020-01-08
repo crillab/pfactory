@@ -1,6 +1,6 @@
 
-#ifndef Enum_H
-#define Enum_H
+#ifndef Task_H
+#define Task_H
 
 #include <functional>
 #include <climits>
@@ -13,8 +13,6 @@ namespace pFactory{
         finished = 3, // Tasks that have finished normaly theirs works
         stopped = 4, // Tasks that have were stopped during their calculation 
         stopAllTasks = 5 // Task that has stopped the calculation of others tasks
-
-        
     };
 
     inline std::ostream& operator<<(std::ostream& os, Status c)
@@ -34,10 +32,8 @@ namespace pFactory{
 
     class Task {
         public:
-            static unsigned int taskCount; //To get the id of a group
-
-            Task(const std::function<int()>& _function):
-                id(taskCount++),
+            Task(unsigned int _id, const std::function<int()>& _function):
+                id(_id),
                 function(_function),
                 threadId(UINT_MAX),
                 status(Status::notStarted),
@@ -54,21 +50,20 @@ namespace pFactory{
             inline unsigned int getId(){return id;}
             inline unsigned int getThreadId(){return threadId;}
 
-            inline const std::function<int()>& getFunction(){return function;}
+            inline const std::function<int()> getFunction(){return function;}
             
         private:
+            
             unsigned int id;
             const std::function<int()>& function;
             unsigned int threadId;
             Status status;
             int returnCode;
-
-
     };
 
     inline std::ostream& operator<<(std::ostream& os, Task task)
     {
-        os << "[task " << task.getId() << "]";
+        os << "[task " << task.getId() << "] " << "return: " << task.getReturnCode() << " - status: " << task.getStatus();
         return os;
     }
 

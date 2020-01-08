@@ -40,12 +40,11 @@
 #include <stdarg.h> 
 
 #include "Barrier.h"
-#include "Winner.h"
-#include "Enum.h"
+#include "Task.h"
 
 namespace pFactory {
     
-    const int VERBOSE = 0;
+    const int VERBOSE = 1;
 
     
     /* An instance of the class group represent :
@@ -74,7 +73,7 @@ namespace pFactory {
 
         ~Group() {
             if (!hasStarted){
-                tasksToRun.clear(); //First clean all tasks
+                tasksIdToRun.clear(); //First clean all tasks
                 tasks.clear();
                 startedBarrier->wait(); //Free the barrier
                 wait(); //Join all threads
@@ -150,14 +149,19 @@ namespace pFactory {
         inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
         inline unsigned int getNbTasks() const {return tasks.size();}
 
-        inline std::vector<Task*>& getTasks() {return tasks;}
-        inline void setTaskStatus(Status _status){tasks[getTaskId()]->setStatus(_status);}
+
+        inline std::vector<Task>& getTasks() {return tasks;}
+        inline Task& getTask(){return tasks[getTaskId()];}
+        
+        inline void setTaskStatus(Status _status){tasks[getTaskId()].setStatus(_status);}
 
         //To stop tasks
         inline void stop() {testStop = true;}
         inline bool isStopped() {return testStop;}
 
-        inline Task* getWinner(){return winner;}
+        inline Task& getWinner(){
+            return tasks[winnerId];
+        }
 
         inline Group& concurrent(){
             concurrentMode = true;
@@ -170,12 +174,12 @@ namespace pFactory {
 
         void wrapperWaitting(unsigned int seconds);
         // Winner of the concurrential method    
-        Task* winner;
+        unsigned int winnerId;
         
         //General variables for a group
-        std::vector<std::thread *> threads;
-        std::vector <Task *> tasks;
-        std::vector <Task *> tasksToRun;
+        std::vector<std::thread*> threads;
+        std::vector <Task> tasks;
+        std::vector <unsigned int> tasksIdToRun;
         
         std::vector<unsigned int> CurrentTaskIdPerThread;
         
@@ -184,6 +188,7 @@ namespace pFactory {
         unsigned int idGroup;
         unsigned int nbThreads;
         unsigned int nbLaunchedTasks;
+        unsigned int nbTasks;
 
         //For the concurrent mode
         bool concurrentMode;

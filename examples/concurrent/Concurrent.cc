@@ -41,10 +41,10 @@ int main(){
           }
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") finished" << std::endl;
 	      
         // Set the status of the task that has finished 
         group.setTaskStatus(pFactory::Status::finished);
+        pFactory::cout() << "I have finished my work! " << group.getTask() << std::endl;
         return (int)group.getTaskId();
       });
   }
@@ -55,16 +55,8 @@ int main(){
   // Wait until all threads are performed all tasks 
   pFactory::wait(group);
 
-  // Display the return codes (pFactory keeps the good return code of each task)
-  // >=0 : Tasks finished
-  // -1 : Tasks not started 
-  // -2 : Task that has stopped the calculation
-  // -3 : Tasks that have were stopped during their calculation 
-
-  for(auto task: group.getTasks()){
-    std::cout << "Task: " << task->getId() << " - code: " << task->getReturnCode() << " - status: " << task->getStatus() << std::endl;
-  }
-
-  // To get the winner :
-  std::cout << "Winner: " << group.getWinner()->getId() << " (on the thread " << group.getWinner()->getThreadId() << ") - returnCode: " << group.getWinner()->getReturnCode() << std::endl;
+  // Information displaying 
+  std::cout << "Tasks: " << std::endl;
+  for(auto &task: group.getTasks())std::cout << task << std::endl;
+  std::cout << "Winner: " << std::endl << group.getWinner() << std::endl;
 }

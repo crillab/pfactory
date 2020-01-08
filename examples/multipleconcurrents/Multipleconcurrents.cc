@@ -27,6 +27,7 @@ const static int TASK_STOPPED = -3;
 void createTask(pFactory::Group& group, unsigned int randomWinnerGroup, unsigned int randomWinnerTask){
   // A task is represented by a C++11 lambda function 
   group.add([randomWinnerGroup, randomWinnerTask, &group](){
+      pFactory::cout() << "coucou" << std::endl;
       // To simulate the task calculation according to the tasks id
       unsigned int randomNumber = std::experimental::randint(0, (int)group.getTaskId()-1);
       unsigned int nbLoops = group.getTaskId() == randomWinnerTask and group.getGroupId() == randomWinnerGroup?1000:1010+randomNumber;
@@ -49,7 +50,7 @@ int main(){
   const static unsigned int nbTasksPerGroup = nbThreads/nbGroups;
 
   std::vector<pFactory::Group> groups(nbGroups, pFactory::Group(nbTasksPerGroup)); //Mupliple groups
-  std::cout << "Example of mutliple groups in concurrence Group with " << nbGroups << " of " << nbTasksPerGroup << " tasks" << std::endl;
+  std::cout << "Example of mutliple groups in concurrence with " << nbGroups << " groups of " << nbTasksPerGroup << " tasks" << std::endl;
 
   unsigned int randomWinnerGroup = std::experimental::randint(0, (int)nbGroups-1);
   unsigned int randomWinnerTask = std::experimental::randint(0, (int)nbTasksPerGroup-1);
@@ -61,7 +62,7 @@ int main(){
       createTask(groups[i], randomWinnerGroup, randomWinnerTask);
   }
 
-  pFactory::start(groups[0], groups[1], groups[2], groups[3]).concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
+  pFactory::start(groups).concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
   pFactory::wait(groups);
 
   // Display the return codes (pFactory keeps the good return code of each task)
@@ -72,8 +73,8 @@ int main(){
 
   for (unsigned int i = 0;i < nbGroups;i++){
     for (auto task: groups[i].getTasks())
-      pFactory::cout() << "Group "<< groups[i].getGroupId() << " - Task " << task->getId() << " - Code: " << task->getReturnCode() << std::endl;
+      std::cout << "[Group " << groups[i].getGroupId() << "]" << task << std::endl;
     // To get the winner :
-    std::cout << "Winner of the group " << groups[i].getGroupId() << " is the task " << groups[i].getWinner()->getId() << " (on the thread " << groups[i].getWinner()->getThreadId() << ") - returnCode: " << groups[i].getWinner()->getReturnCode() << std::endl;
+    std::cout << "[Group " << groups[i].getGroupId() << "] The winner is the task " << groups[i].getWinner() << std::endl;
   }
 }
