@@ -37,11 +37,11 @@ int main() {
         // Add as many tasks as threads in the group
         group.add([&]() {
             // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
-            pFactory::cout() << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") sends: " << group.getTaskId() << std::endl;
+            pFactory::cout() << group.getTask() << " sends: " << group.getTask().getId() << std::endl;
             
             // group.getThreadId() return the id of a thread that execute this function for a group
             // group.getTaskId() return the id of this task for a group
-            integerCommunicator.send(group.getTaskId());
+            integerCommunicator.send(group.getTask().getId());
             
             // A group has a barrier to wait all tasks at the same moment of the execution 
             // Here, this barrier is used to wait that all tasks are sent their data 
@@ -52,14 +52,14 @@ int main() {
             /* With recvAll function */
             std::vector<int> data;
             integerCommunicator.recvAll(data);
-            msg << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") receives:";
+            msg << group.getTask() << " receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 msg << data[j] << ' ';
             pFactory::cout() << msg.str() << std::endl;
             
 #else
             /* With recv function */
-            msg << "Task" << group.getTaskId() << " (on the thread "<< group.getThreadId() <<") receives:";
+            msg << group.getTask() << " receives:";
             int data;
             while(integerCommunicator.recv(data) != false)
                 msg << data << ' ';

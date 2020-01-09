@@ -36,26 +36,26 @@ int main(){
         
         // You can stop the process calculation when you want thanks to the method group.stop() 
         // It is very usefull if a task induced the interruption of all others tasks 
-        if (group.getTaskId() == 500){
+        if (group.getTask().getId() == 500){
           pFactory::cout() << "Task " << group.getTask().getId() << " (on the thread " << group.getThreadId() << ") stops the group!" << std::endl;
           group.stop();
-          group.setTaskStatus(pFactory::Status::stopAllTasks);
-          return (int)group.getTaskId();
+          group.getTask().setStatus(pFactory::Status::stopAllTasks);
+          return (int)group.getTask().getId();
         }
 
         // To simulate the task calculation
         for(unsigned int j = 0; j < 50;j++){ 
           if (group.isStopped()){
-            group.setTaskStatus(pFactory::Status::stopped);
-            return (int)group.getTaskId();
+            group.getTask().setStatus(pFactory::Status::stopped);
+            return (int)group.getTask().getId();
           } // To stop this task during its calculation if the group have to be stopped
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         
         // The return code of the task that has finished 
-        group.setTaskStatus(pFactory::Status::finished);
+        group.getTask().setStatus(pFactory::Status::finished);
         pFactory::cout() << "Task " << group.getTask().getId() << " have finished its work!" << std::endl;
-        return (int)group.getTaskId();
+        return (int)group.getTask().getId();
       });
   }
   

@@ -29,7 +29,7 @@ int main(){
     // The capture list [i, &group] meaning that i (resp. group) is captured by value (resp. by reference)  
     group.add([&](){
         // pFactory::cout() provides a special critical section for displaying information
-	      pFactory::cout() << "Task " << group.getTaskId() << " (on the thread " << group.getThreadId() << ") says Hello World" << std::endl;
+	      pFactory::cout() << group.getTask() << " says Hello World" << std::endl;
 	      return 0;
       });
   }

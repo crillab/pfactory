@@ -8,11 +8,11 @@
 namespace pFactory{
     
     enum class Status{
-        notStarted = 1, // Tasks not started yet
-        inProgress = 2, // Tasks in progress
-        finished = 3, // Tasks that have finished normaly theirs works
-        stopped = 4, // Tasks that have were stopped during their calculation 
-        stopAllTasks = 5 // Task that has stopped the calculation of others tasks
+        notStarted, // Tasks not started yet
+        inProgress, // Tasks in progress
+        finished, // Tasks that have finished normaly theirs works
+        stopped, // Tasks that have were stopped during their calculation 
+        stopAllTasks // Task that has stopped the calculation of others tasks
     };
 
     inline std::ostream& operator<<(std::ostream& os, Status c)
@@ -37,33 +37,37 @@ namespace pFactory{
                 function(_function),
                 threadId(UINT_MAX),
                 status(Status::notStarted),
-                returnCode(0)
+                returnCode(INT_MAX)
             {}
             
-            inline void setId(int _id){id=_id;}
-            inline void setReturnCode(int _returnCode){returnCode=_returnCode;}
-            inline void setStatus(Status _status){status=_status;}
-            inline void setThreadId(int _threadId){threadId=_threadId;}
-
-            inline int getReturnCode(){return returnCode;}
-            inline Status getStatus(){return status;}
             inline unsigned int getId(){return id;}
-            inline unsigned int getThreadId(){return threadId;}
-
             inline const std::function<int()> getFunction(){return function;}
             
-        private:
+            inline int getReturnCode(){return returnCode;}
+            inline Status getStatus(){return status;}
+            inline unsigned int getThreadId(){return threadId;}
             
-            unsigned int id;
-            const std::function<int()>& function;
+            inline void setStatus(Status _status){status=_status;}
+            inline void setReturnCode(int _returnCode){returnCode=_returnCode;}
+            inline void setThreadId(int _threadId){threadId=_threadId;}
+            
+        private:
+            const unsigned int id;
+            const std::function<int()> function; // Copy the std::function in a task (due to limited scope of the function)
             unsigned int threadId;
             Status status;
             int returnCode;
+    
+            
     };
 
     inline std::ostream& operator<<(std::ostream& os, Task task)
     {
-        os << "[task " << task.getId() << "] " << "return: " << task.getReturnCode() << " - status: " << task.getStatus();
+        
+        os << "[task " << task.getId();
+        if (task.getReturnCode() != INT_MAX) os << " - return: " << task.getReturnCode();
+        if (task.getThreadId() != UINT_MAX) os << " - thread: " << task.getThreadId();
+        os << " - status: " << task.getStatus() << "]";
         return os;
     }
 

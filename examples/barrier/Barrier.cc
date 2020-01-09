@@ -30,33 +30,33 @@ int main() {
         group1.add([&]() {
             // A group has its own barrier. All threads of a group have to execute the method barrier.wait() in order to synchronize all threads and pass the barrier.
             // If some threads call barrier.wait() and at least one of threads does not call barrier.wait() then some threads are bloked in the barrier.  
-            pFactory::cout() << "Before the first call to the barrier !" << std::endl;
+            pFactory::cout() << group1.getTask() << "Before the first call!" << std::endl;
             group1.barrier.wait();
-            pFactory::cout() << "Before the second call to the barrier and after the first call!" << std::endl;
+            pFactory::cout() << group1.getTask() << "Before the second call and after the first call!" << std::endl;
             group1.barrier.wait();
-            pFactory::cout() << "After all calls to the barrier!" << std::endl;
+            pFactory::cout() << group1.getTask() << "After all calls!" << std::endl;
             return 0;
         });
         
         group2.add([&]() {
-            if (group2.getTaskId() < nbThreadsBarrier){
-                pFactory::cout() << "Before the first call to the barrier !" << std::endl;
+            if (group2.getTask().getId() < nbThreadsBarrier){
+                pFactory::cout() << group2.getTask() << "Before the first call!" << std::endl;
                 myBarrier.wait();
-                pFactory::cout() << "Before the second call to the barrier and after the first call!" << std::endl;
+                pFactory::cout() << group2.getTask() << "Before the second call and after the first call!" << std::endl;
                 myBarrier.wait();
-                pFactory::cout() << "After all calls to the barrier!" << std::endl;
+                pFactory::cout() << group2.getTask() << "After all calls!" << std::endl;
             }else{
-                pFactory::cout() << "Without barrier on the task " << group2.getTaskId() << " !" << std::endl;
+                pFactory::cout() << group2.getTask() << "Without barrier!" << std::endl;
             }
             return 0;
         });
     }
 
-    std::cout << "A barrier of "<< nbThreads << " threads on the group of " << nbThreads << " threads:"<< std::endl;
+    std::cout << std::endl << "A barrier of "<< nbThreads << " threads on a group of " << nbThreads << " threads:"<< std::endl;
     group1.start(); 
     group1.wait();
      
-    std::cout << "A barrier of "<< nbThreadsBarrier << " threads on the group of " << nbThreads << " threads:"<< std::endl;
+    std::cout << std::endl << "A barrier of "<< nbThreadsBarrier << " threads on a group of " << nbThreads << " threads:"<< std::endl;
     group2.start(); 
     group2.wait();
 

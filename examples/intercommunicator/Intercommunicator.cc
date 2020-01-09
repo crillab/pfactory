@@ -38,9 +38,9 @@ int main() {
 
     for(unsigned int i = 0; i < nbTasks; i++) {
         group1.add([&]() {
-            pFactory::cout() << "Groupe 1: Task" << group1.getTaskId() << " (on the thread "<< group1.getThreadId() <<") sends: " << group1.getTaskId() << std::endl;
+            pFactory::cout() << "[" << group1.getId() << "]" << group1.getTask() << " sends: " << group1.getTask().getId() << std::endl;
             
-            integerIntercommunicator.send(group1.getTaskId());
+            integerIntercommunicator.send(group1.getTask().getId());
             mybarrier.wait(); //To ensure that all messages are sent before the receive operation.
             return 0;
         });
@@ -52,7 +52,7 @@ int main() {
             std::vector<int> data;
             std::stringstream msg;
             integerIntercommunicator.recvAll(data);
-            msg << "Groupe 2: Task" << group2.getTaskId() << " (on the thread "<< group2.getThreadId() <<") receives:";
+            msg << "[" << group2.getId() << "]" << group2.getTask() << "receives:";
             for(unsigned int j = 0; j < data.size(); ++j)
                 msg << data[j] << ' ';
             pFactory::cout() << msg.str() << std::endl;

@@ -44,7 +44,7 @@
 
 namespace pFactory {
     
-    const int VERBOSE = 1;
+    const int VERBOSE = 0;
 
     
     /* An instance of the class group represent :
@@ -143,8 +143,8 @@ namespace pFactory {
             assert(false); // Impossible
             return threadId;
         }
-        inline unsigned int getGroupId() const {return idGroup;}
-        inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
+        inline unsigned int getId() const {return idGroup;}
+        
         inline unsigned int getNbThreads() const {return nbThreads;}
         inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
         inline unsigned int getNbTasks() const {return tasks.size();}
@@ -153,7 +153,7 @@ namespace pFactory {
         inline std::vector<Task>& getTasks() {return tasks;}
         inline Task& getTask(){return tasks[getTaskId()];}
         
-        inline void setTaskStatus(Status _status){tasks[getTaskId()].setStatus(_status);}
+        
 
         //To stop tasks
         inline void stop() {testStop = true;}
@@ -169,6 +169,9 @@ namespace pFactory {
         }
 
     private:
+
+        inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
+        inline void setTaskStatus(Status _status){tasks[getTaskId()].setStatus(_status);}
 
         void wrapperFunction();
 

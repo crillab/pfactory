@@ -88,6 +88,7 @@ namespace pFactory{
     }
 
     void Group::add(const std::function<int()>& function){
+        
         tasks.push_back(Task(nbTasks, function));
         tasksIdToRun.push_back(nbTasks);
         nbTasks++;
@@ -154,29 +155,30 @@ namespace pFactory{
             //Get a task
             unsigned int taskId = tasksIdToRun.back();
             tasksIdToRun.pop_back();
-            std::cout << "ess:" << taskId << std::endl;
-            std::cout << "size:" << tasks.size() << std::endl;
+
             const std::function<int()> function = tasks[taskId].getFunction();
             CurrentTaskIdPerThread[getThreadId()] = tasks[taskId].getId();
+            tasks[taskId].setStatus(pFactory::Status::inProgress);
+            tasks[taskId].setThreadId(getThreadId());
             nbLaunchedTasks++;
             
             tasksLock.unlock();
             
             //Launch a task  
             if(VERBOSE)
-                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getGroupId(),getTaskId(),getThreadId());
+                printf("c [pFactory][Group N°%d] task %d launched on thread %d.\n",getId(),getTaskId(),getThreadId());
             int returnCode = function();  
             
             tasksLock.lock();
             
             tasks[getTaskId()].setReturnCode(returnCode);
-            tasks[getTaskId()].setThreadId(getThreadId());
+            
 
             if(concurrentMode && winnerId == UINT_MAX){
                 winnerId = getTaskId();
                 stop();
                 if(VERBOSE)
-                    printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getGroupId(),getGroupId(),getTaskId());
+                    printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getId(),getThreadId(),getTaskId());
                 return;
 
             }
