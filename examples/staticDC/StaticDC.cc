@@ -39,22 +39,22 @@ int main(){
         if (group.getTask().getId() == 500){
           pFactory::cout() << "Task " << group.getTask().getId() << " (on the thread " << group.getThreadId() << ") stops the group!" << std::endl;
           group.stop();
-          group.getTask().setStatus(pFactory::Status::stopAllTasks);
+          group.getTask().setDescription("stop all others tasks");
           return (int)group.getTask().getId();
         }
 
         // To simulate the task calculation
         for(unsigned int j = 0; j < 50;j++){ 
           if (group.isStopped()){
-            group.getTask().setStatus(pFactory::Status::stopped);
+            group.getTask().setDescription("stopped during its computation");
             return (int)group.getTask().getId();
           } // To stop this task during its calculation if the group have to be stopped
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         
         // The return code of the task that has finished 
-        group.getTask().setStatus(pFactory::Status::finished);
-        pFactory::cout() << "Task " << group.getTask().getId() << " have finished its work!" << std::endl;
+        group.getTask().setDescription("expected end");
+        pFactory::cout() << group.getTask() << std::endl;
         return (int)group.getTask().getId();
       });
   }

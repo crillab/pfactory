@@ -32,13 +32,14 @@ void createTask(pFactory::Group& group, unsigned int randomWinnerGroup, unsigned
       unsigned int nbLoops = group.getTask().getId() == randomWinnerTask and group.getId() == randomWinnerGroup?1000:1010+randomNumber;
       for(unsigned int j = 0; j < nbLoops;j++){ 
         if (group.isStopped()){ 
-          group.getTask().setStatus(pFactory::Status::stopped);
+          group.getTask().setDescription("stopped during its computation");
           return (int)group.getTask().getId(); // To stop this task during its calculation if the group have to be stopped
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
-      pFactory::cout() << "[Group "<< group.getId() << "]" << group.getTask() << " finished" << std::endl;
-      group.getTask().setStatus(pFactory::Status::finished);
+      
+      group.getTask().setDescription("expected end");
+      pFactory::cout() << "[Group "<< group.getId() << "]" << group.getTask() << std::endl;
       // The return code of the task that has finished 
       return (int)group.getTask().getId();
   });
@@ -64,7 +65,7 @@ int main(){
       createTask(groups[i], randomWinnerGroup, randomWinnerTask);
   }
 
-  pFactory::start(groups).concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
+  pFactory::start(groups[0],groups[1],groups[2],groups[3]).concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
   pFactory::wait(groups);
 
   // Display the return codes (pFactory keeps the good return code of each task)

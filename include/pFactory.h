@@ -9,6 +9,7 @@
 #include "Communicators.h"
 #include "Intercommunicators.h"
 #include "Safestd.h"
+#include "Starter.h"
 
 namespace pFactory{
     
@@ -47,63 +48,7 @@ namespace pFactory{
             std::deque <T> queue;
     };
 
-    class Starter {
-        public:
-            static Starter* current;
-            static unsigned int nbRecurrences;
-
-            Starter(std::vector<Group>& _groups)
-            {
-               for(unsigned int i = 0; i < _groups.size(); i++){
-                   groups.push_back(&_groups[i]);
-               }
-            };
-
-            Starter(){}
-            
-            void push_back(Group* group){
-                groups.push_back(group);
-            }
-
-            void concurrent(){
-                std::cout << "Concurrent" << std::endl;
-            }
-
-        private:
-            std::vector<Group*> groups;
-
-
-    };
-    Starter* Starter::current = NULL;
-    unsigned int Starter::nbRecurrences = 0;
-
-    void start(Group& t) // base function
-    {
-        if (Starter::nbRecurrences == 0){
-            if (Starter::current != NULL) delete Starter::current;
-            Starter::current = new Starter();
-        }
-        Starter::current->push_back(&t);
-        t.start();
-    }
-
-    Starter& start(std::vector<Group>& groups){
-        Starter* starter = new Starter(groups);
-        for(unsigned int i = 0; i < groups.size(); i++)
-            groups[i].start();
-        return *starter;
-    }
-
-    template <typename T, typename... Ts>
-    Starter& start(T& t, Ts&... ts) // recursive variadic function
-    {   
-        
-        Starter::nbRecurrences++;
-        start(t);
-        start(ts...);
-        Starter::nbRecurrences--;
-        return *Starter::current;
-    }
+   
 
     void wait(Group& t) // base function
     {

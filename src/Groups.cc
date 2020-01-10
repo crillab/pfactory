@@ -22,10 +22,6 @@
 #include <thread>
 
 #include "Groups.h"
-#include "Barrier.h"
-
-
-
 
 namespace pFactory{
     
@@ -44,7 +40,9 @@ namespace pFactory{
 	    startedBarrier(NULL),
 	    waitingThreads(NULL),
         hasStarted(false),
-        hasWaited(false)
+        hasWaited(false),
+        concurrentGroupsModes(false),
+        starter(NULL)
     {
         startedBarrier = new Barrier(pnbThreads+1);
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
@@ -170,7 +168,7 @@ namespace pFactory{
             int returnCode = function();  
             
             tasksLock.lock();
-            
+            tasks[taskId].setStatus(pFactory::Status::terminated);
             tasks[getTaskId()].setReturnCode(returnCode);
             
 

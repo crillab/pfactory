@@ -43,7 +43,7 @@
 #include "Task.h"
 
 namespace pFactory {
-    
+    class Starter;
     const int VERBOSE = 0;
 
     
@@ -168,6 +168,9 @@ namespace pFactory {
             return *this;
         }
 
+        inline Starter* getStarter(){return starter;}
+        inline void setStarter(Starter* _starter){starter = _starter;}
+
     private:
 
         inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
@@ -206,7 +209,13 @@ namespace pFactory {
         bool hasStarted;
         bool hasWaited;
 
+        //For the concurrent mode of several groups
+        bool concurrentGroupsModes;
+        Starter* starter;
+
     };
+
+    
 
 }
 

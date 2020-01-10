@@ -36,15 +36,15 @@ int main(){
         unsigned int nbLoops = group.getTask().getId() == randomWinner?1000:1010+group.getTask().getId();
         for(unsigned int j = 0; j < nbLoops;j++){ 
           if (group.isStopped()){
-             group.getTask().setStatus(pFactory::Status::stopped);
+             group.getTask().setDescription("stopped during its computation");
              return (int)group.getTask().getId(); // To stop this task during its calculation if the group have to be stopped
           }
           std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 	      
         // Set the status of the task that has finished 
-        group.getTask().setStatus(pFactory::Status::finished);
-        pFactory::cout() << "I have finished my work! " << group.getTask() << std::endl;
+        group.getTask().setDescription("expected end");
+        pFactory::cout() << group.getTask() << std::endl;
         return (int)group.getTask().getId();
       });
   }
