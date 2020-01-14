@@ -9,35 +9,29 @@ namespace pFactory{
 
     class Starter {
         public:
-            static unsigned int nbRecurrences;
             
-            Starter(){}
+            Starter():winner(NULL){}
+            Starter(Group* _group){push_back(_group);}
+            Starter(std::vector<Group>& _groups){push_back(_groups);}
 
-            Starter(Group* _group){
-                push_back(_group);
+            void push_back(Group* _group){groups.push_back(_group);}
+            void push_back(std::vector<Group>& _groups){for (auto& group: _groups)push_back(&group);}
+
+            Starter& concurrent(){
+                for (auto& group: groups)group->setConcurrentGroupsModes(true);
+                return *this;
             }
 
-            Starter(std::vector<Group>& _groups){
-                push_back(_groups);
-            }
+            std::vector<Group*>& getGroups(){return groups;}
+            
+            void setWinner(Group* _winner){winner = _winner;}
+            Group* getWinner(){return winner;}
 
-
-            void push_back(Group* _group){
-                groups.push_back(_group);
-            }
-
-            void push_back(std::vector<Group>& _groups){
-                for (auto& group: _groups)push_back(&group);
-            }
-
-            void concurrent(){
-                std::cout << "Concurrent" << std::endl;
-            }
 
         private:
+            
             std::vector<Group*> groups;
-
-
+            Group* winner;
     };
     
 
@@ -45,72 +39,28 @@ namespace pFactory{
         public:
             static std::vector<Starter*> starters;
             static Starter* current;
+            static bool haveToBeFreed;
+            static unsigned int nbRecurrences;
+            static std::mutex startersMutex;
 
             Starters(){}
 
-            Starter* add(){
+            static Starter* add(){
                 Starter* starter = new Starter();
+                if (Starters::haveToBeFreed == false){
+                    Starters::haveToBeFreed = true;
+                    std::atexit(Starters::free);
+                }
                 Starters::current = starter;
                 starters.push_back(starter);
                 return starter;
             }
 
-            void clean(){
-                for (auto starter : starters) delete starter;
-            }
+            
+
+            static void free(){for (auto starter : starters) delete starter;}
     };
 
-    unsigned int Starter::nbRecurrences = 0;
-    Starter* Starters::current = NULL;
-    std::vector<Starter*> Starters::starters = std::vector<Starter*>();
-
-    Starters _starters = Starters();
-    bool callCleanStarterHandler = false;
-    void cleanStarterHandler(){_starters.clean();}
-    void doCleanStarterHandler(){
-        if (!callCleanStarterHandler){
-            std::atexit(cleanStarterHandler);
-            callCleanStarterHandler = true;
-        }
-    }
-
     
-
-    void start(Group& t) // base function
-    {
-        if (Starter::nbRecurrences == 0){
-            doCleanStarterHandler();
-            _starters.add();
-        }
-        Starter::nbRecurrences++;
-        Starters::current->push_back(&t);
-        t.setStarter(Starters::current);
-        t.start();
-    }
-
-    Starter& start(std::vector<Group>& groups){
-        doCleanStarterHandler();
-        _starters.add();
-        Starters::current->push_back(groups);
-        for(auto& group: groups){
-            group.start();
-            group.setStarter(Starters::current);
-        }
-        return *Starters::current;
-    }
-
-    template <typename T, typename... Ts>
-    Starter& start(T& t, Ts&... ts) // recursive variadic function
-    {   
-        
-        
-        start(t);
-        start(ts...);
-        Starter::nbRecurrences--;
-        return *Starters::current;
-    }
-
- 
 }
-
 #endif

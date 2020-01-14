@@ -65,7 +65,8 @@ int main(){
       createTask(groups[i], randomWinnerGroup, randomWinnerTask);
   }
 
-  pFactory::start(groups[0],groups[1],groups[2],groups[3]).concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
+  pFactory::Starter* starter = pFactory::start(groups); //pFactory::start return an object pFactory::Starter to obtain more options 
+  starter->concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
   pFactory::wait(groups);
 
   // Display the return codes (pFactory keeps the good return code of each task)
@@ -77,7 +78,10 @@ int main(){
   for (unsigned int i = 0;i < nbGroups;i++){
     for (auto task: groups[i].getTasks())
       std::cout << "[Group " << groups[i].getId() << "]" << task << std::endl;
-    // To get the winner :
+    // To get the winners of each group (the first task that is finished) :
     std::cout << "[Group " << groups[i].getId() << "] The winner is " << groups[i].getWinner() << std::endl;
   }
+  // To get the winner group (the first group that is terminated):
+  std::cout << "The winner group is [Group " << starter->getWinner()->getId() << "] with the task " << starter->getWinner()->getWinner() << std::endl;
+  
 }

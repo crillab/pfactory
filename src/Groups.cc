@@ -22,6 +22,7 @@
 #include <thread>
 
 #include "Groups.h"
+#include "Starter.h"
 
 namespace pFactory{
     
@@ -171,10 +172,18 @@ namespace pFactory{
             tasks[taskId].setStatus(pFactory::Status::terminated);
             tasks[getTaskId()].setReturnCode(returnCode);
             
-
             if(concurrentMode && winnerId == UINT_MAX){
                 winnerId = getTaskId();
                 stop();
+                if(concurrentGroupsModes){
+                    Starters::startersMutex.lock();
+                    if(starter->getWinner() == NULL){
+                         starter->setWinner(this);
+                    } 
+                    std::vector<Group*> groups = starter->getGroups();
+                    for (auto& group: groups) group->stop();
+                    Starters::startersMutex.unlock();
+                }
                 if(VERBOSE)
                     printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getId(),getThreadId(),getTaskId());
                 return;

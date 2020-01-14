@@ -69,5 +69,43 @@ namespace pFactory{
         wait(ts...);
     }
 
+
+    std::mutex Starters::startersMutex;
+    Starter* Starters::current = NULL;
+
+    std::vector<Starter*> Starters::starters = std::vector<Starter*>();
+    bool Starters::haveToBeFreed = false;
+    unsigned int Starters::nbRecurrences = 0;
+    Starters starters = Starters();
+    
+    Starter* start(Group& t) // base function
+    {
+        if (Starters::nbRecurrences == 0){starters.add();}
+        Starters::nbRecurrences++;
+        Starters::current->push_back(&t);
+        t.setStarter(Starters::current);
+        t.start();
+        return Starters::current;
+    }
+
+    Starter* start(std::vector<Group>& groups){
+        starters.add();
+        Starters::current->push_back(groups);
+        for(auto& group: groups){
+            group.start();
+            group.setStarter(Starters::current);
+        }
+        return Starters::current;
+    }
+
+    template <typename T, typename... Ts>
+    Starter* start(T& t, Ts&... ts) // recursive variadic function
+    {   
+        start(t);
+        start(ts...);
+        Starters::nbRecurrences--;
+        return Starters::current;
+    }
+
 }
 

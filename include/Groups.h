@@ -148,7 +148,7 @@ namespace pFactory {
         inline unsigned int getNbThreads() const {return nbThreads;}
         inline unsigned int getNbLaunchedTasks() const {return nbLaunchedTasks;}
         inline unsigned int getNbTasks() const {return tasks.size();}
-
+        
 
         inline std::vector<Task>& getTasks() {return tasks;}
         inline Task& getTask(){return tasks[getTaskId()];}
@@ -159,9 +159,7 @@ namespace pFactory {
         inline void stop() {testStop = true;}
         inline bool isStopped() {return testStop;}
 
-        inline Task& getWinner(){
-            return tasks[winnerId];
-        }
+        inline Task& getWinner(){return tasks[winnerId];}
 
         inline Group& concurrent(){
             concurrentMode = true;
@@ -170,11 +168,12 @@ namespace pFactory {
 
         inline Starter* getStarter(){return starter;}
         inline void setStarter(Starter* _starter){starter = _starter;}
-
+        inline void setConcurrentGroupsModes(bool _concurrentGroupsModes){concurrentGroupsModes=_concurrentGroupsModes;}
     private:
 
         inline unsigned int getTaskId() {return CurrentTaskIdPerThread[getThreadId()];}
         inline void setTaskStatus(Status _status){tasks[getTaskId()].setStatus(_status);}
+        
 
         void wrapperFunction();
 

@@ -28,6 +28,15 @@ namespace pFactory{
 
     class Task {
         public:
+            Task():
+                id(0),
+                function(),
+                threadId(UINT_MAX),
+                status(Status::notStarted),
+                returnCode(INT_MAX),
+                description(std::string("empty task"))
+            {}
+
             Task(unsigned int _id, const std::function<int()>& _function):
                 id(_id),
                 function(_function),
@@ -36,14 +45,16 @@ namespace pFactory{
                 returnCode(INT_MAX),
                 description(std::string(""))
             {}
+
             
-            inline unsigned int getId(){return id;}
-            inline const std::function<int()> getFunction(){return function;}
             
-            inline int getReturnCode(){return returnCode;}
-            inline Status getStatus(){return status;}
-            inline unsigned int getThreadId(){return threadId;}
-            inline std::string& getDescription(){return description;}
+            inline unsigned int getId() const {return id;}
+            inline std::function<int()> const getFunction(){return function;}
+            
+            inline int getReturnCode() const {return returnCode;}
+            inline Status getStatus() const {return status;}
+            inline unsigned int getThreadId() const {return threadId;}
+            inline std::string& getDescription() {return description;}
 
             inline void setStatus(Status _status){status=_status;}
             inline void setReturnCode(int _returnCode){returnCode=_returnCode;}
