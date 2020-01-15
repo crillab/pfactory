@@ -59,18 +59,9 @@ int main(){
       });
   }
   
-  // Conquer phase : start the computation of all tasks
-  pFactory::start(group);
+  pFactory::Controller controller(group);
+  controller.start();// Conquer phase : start the computation of all tasks
+  controller.wait();// Wait until all threads are performed all tasks 
 
-  // Wait until all threads are performed all tasks 
-  pFactory::wait(group);
-
-  // Display the return codes (pFactory keeps the good return code of each task)
-  // >=0 : Tasks finished
-  // -1 : Tasks not started 
-  // -2 : Task that has stopped the calculation
-  // -3 : Tasks that have were stopped during their calculation 
-  
-  for(auto &task: group.getTasks()) std::cout << task << std::endl;
-  
+  for(auto &task: group.getTasks()) std::cout << task << std::endl;  
 }

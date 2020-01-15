@@ -48,12 +48,9 @@ int main(){
         return (int)group.getTask().getId();
       });
   }
-  
-  // Concurrent mode by adding the parameter true to the method group.start()
-  pFactory::start(group.concurrent());
-  
-  // Wait until all threads are performed all tasks 
-  pFactory::wait(group);
+  pFactory::Controller controller(group.concurrent()); //Concurrent mode for this group
+  controller.start();
+  controller.wait();
 
   // Information displaying 
   std::cout << "Tasks: " << std::endl;

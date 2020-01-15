@@ -22,12 +22,12 @@
 #include <thread>
 
 #include "Groups.h"
-#include "Starter.h"
+#include "Controller.h"
 
 namespace pFactory{
     
     unsigned int Group::groupCount = 0;
-    
+
     Group::Group(unsigned int pnbThreads):
         barrier(pnbThreads),
         winnerId(UINT_MAX),
@@ -43,7 +43,7 @@ namespace pFactory{
         hasStarted(false),
         hasWaited(false),
         concurrentGroupsModes(false),
-        starter(NULL)
+        controller(NULL)
     {
         startedBarrier = new Barrier(pnbThreads+1);
         for (unsigned int i = 0;i<pnbThreads;i++)threads.push_back(new std::thread(&Group::wrapperFunction,this));
@@ -176,13 +176,13 @@ namespace pFactory{
                 winnerId = getTaskId();
                 stop();
                 if(concurrentGroupsModes){
-                    Starters::startersMutex.lock();
-                    if(starter->getWinner() == NULL){
-                         starter->setWinner(this);
+                    Controller::mutex.lock();
+                    if(controller->getWinner() == NULL){
+                         controller->setWinner(this);
                     } 
-                    std::vector<Group*> groups = starter->getGroups();
+                    std::vector<Group*> groups = controller->getGroups();
                     for (auto& group: groups) group->stop();
-                    Starters::startersMutex.unlock();
+                    Controller::mutex.unlock();
                 }
                 if(VERBOSE)
                     printf("c [pFactory][Group N°%d] concurent mode: thread %d has won with the task %d.\n",getId(),getThreadId(),getTaskId());

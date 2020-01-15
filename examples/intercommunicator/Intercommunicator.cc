@@ -62,6 +62,8 @@ int main() {
 
     }
 
-    pFactory::start(group1, group2);
-    pFactory::wait(group1, group2);
+    pFactory::Controller controller({&group1, &group2});
+    controller.start();
+    controller.wait();
+
 }

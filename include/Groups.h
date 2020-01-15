@@ -42,8 +42,9 @@
 #include "Barrier.h"
 #include "Task.h"
 
+
 namespace pFactory {
-    class Starter;
+    class Controller;
     const int VERBOSE = 0;
 
     
@@ -166,8 +167,8 @@ namespace pFactory {
             return *this;
         }
 
-        inline Starter* getStarter(){return starter;}
-        inline void setStarter(Starter* _starter){starter = _starter;}
+        inline Controller* getController(){return controller;}
+        inline void setController(Controller* _controller){controller = _controller;}
         inline void setConcurrentGroupsModes(bool _concurrentGroupsModes){concurrentGroupsModes=_concurrentGroupsModes;}
     private:
 
@@ -210,7 +211,7 @@ namespace pFactory {
 
         //For the concurrent mode of several groups
         bool concurrentGroupsModes;
-        Starter* starter;
+        Controller* controller;
 
     };
 

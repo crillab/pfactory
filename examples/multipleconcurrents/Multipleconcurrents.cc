@@ -19,9 +19,6 @@
 #include "pFactory.h"
 #include <experimental/random>
 
-// In this example, we create a group of thread with as many tasks as threads in the group
-// It is a model for a concurrent strategy. All tasks are stopped as soon as the first task is finished (the winner).
-
 const static int TASK_STOPPED = -3;
 
 void createTask(pFactory::Group& group, unsigned int randomWinnerGroup, unsigned int randomWinnerTask){
@@ -57,17 +54,18 @@ int main(){
 
   unsigned int randomWinnerGroup = std::experimental::randint(0, (int)nbGroups-1);
   unsigned int randomWinnerTask = std::experimental::randint(0, (int)nbTasksPerGroup-1);
-  std::cout << "Random winner will be the task " << randomWinnerTask << " of the group " << randomWinnerGroup << std::endl;
+  std::cout << "Random winner will be (but maybe not) the task " << randomWinnerTask << " of the group " << randomWinnerGroup << std::endl;
   
   for (unsigned int i = 0;i < nbGroups;i++){
     groups[i].concurrent(); //Concurrency of tasks (the first task to finish its calculation stops all others tasks of its group)
     for (unsigned int j = 0;j < nbTasksPerGroup;j++)
       createTask(groups[i], randomWinnerGroup, randomWinnerTask);
   }
-
-  pFactory::Starter* starter = pFactory::start(groups); //pFactory::start return an object pFactory::Starter to obtain more options 
-  starter->concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
-  pFactory::wait(groups);
+  
+  pFactory::Controller controller(groups);
+  controller.start();
+  controller.concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
+  controller.wait();
 
   // Display the return codes (pFactory keeps the good return code of each task)
   // >=0 : Tasks finished
@@ -82,6 +80,6 @@ int main(){
     std::cout << "[Group " << groups[i].getId() << "] The winner is " << groups[i].getWinner() << std::endl;
   }
   // To get the winner group (the first group that is terminated):
-  std::cout << "The winner group is [Group " << starter->getWinner()->getId() << "] with the task " << starter->getWinner()->getWinner() << std::endl;
+  std::cout << "The winner group is [Group " << controller.getWinner()->getId() << "] with the task " << controller.getWinner()->getWinner() << std::endl;
   
 }
