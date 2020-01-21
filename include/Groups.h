@@ -28,6 +28,7 @@
 #include <thread>
 #include <algorithm>
 #include <vector>
+#include <queue>
 #include <iterator>
 #include <signal.h>
 #include <errno.h>
@@ -167,6 +168,16 @@ namespace pFactory {
             return *this;
         }
 
+        inline Group& popFront(){
+            taskPopFront = true;
+            return *this;
+        }
+
+        inline Group& popBack(){
+            taskPopFront = false;
+            return *this;
+        }
+
         inline Controller* getController(){return controller;}
         inline void setController(Controller* _controller){controller = _controller;}
         inline void setConcurrentGroupsModes(bool _concurrentGroupsModes){concurrentGroupsModes=_concurrentGroupsModes;}
@@ -184,8 +195,8 @@ namespace pFactory {
         
         //General variables for a group
         std::vector<std::thread*> threads;
-        std::vector <Task> tasks;
-        std::vector <unsigned int> tasksIdToRun;
+        std::vector<Task> tasks;
+        std::deque<unsigned int> tasksIdToRun;
         
         std::vector<unsigned int> CurrentTaskIdPerThread;
         
@@ -211,6 +222,7 @@ namespace pFactory {
 
         //For the concurrent mode of several groups
         bool concurrentGroupsModes;
+        bool taskPopFront;
         Controller* controller;
 
     };

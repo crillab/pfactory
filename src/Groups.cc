@@ -43,6 +43,7 @@ namespace pFactory{
         hasStarted(false),
         hasWaited(false),
         concurrentGroupsModes(false),
+        taskPopFront(false),
         controller(NULL)
     {
         startedBarrier = new Barrier(pnbThreads+1);
@@ -87,7 +88,7 @@ namespace pFactory{
     }
 
     void Group::add(const std::function<int()>& function){
-        
+        std::unique_lock<std::mutex> tasksLock(tasksMutex);
         tasks.push_back(Task(nbTasks, function));
         tasksIdToRun.push_back(nbTasks);
         nbTasks++;
@@ -152,9 +153,14 @@ namespace pFactory{
             }
             
             //Get a task
-            unsigned int taskId = tasksIdToRun.back();
-            tasksIdToRun.pop_back();
-
+            unsigned int taskId = 0;
+            if(taskPopFront){
+                taskId = tasksIdToRun.front();
+                tasksIdToRun.pop_front();
+            }else{
+                taskId = tasksIdToRun.back();
+                tasksIdToRun.pop_back();
+            }
             const std::function<int()> function = tasks[taskId].getFunction();
             CurrentTaskIdPerThread[getThreadId()] = tasks[taskId].getId();
             tasks[taskId].setStatus(pFactory::Status::inProgress);

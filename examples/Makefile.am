@@ -1,2 +1,2 @@
-SUBDIRS = helloworld display communicator restrictedcommunicator intercommunicator barrier staticDC concurrent multipleconcurrents
+SUBDIRS = helloworld display communicator restrictedcommunicator intercommunicator barrier staticDC dynamicDC concurrent multipleconcurrents
 
