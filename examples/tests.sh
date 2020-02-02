@@ -9,5 +9,6 @@ do
     echo
     pwd
     valgrind ./${i::-1}
+    read -n 1 -s -r -p "Press any key to continue"
     cd ..;
 done
