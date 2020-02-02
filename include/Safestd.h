@@ -1,3 +1,6 @@
+#ifndef safestd_H
+#define	safestd_H
+
 #include <mutex>
 #include <iostream>
 
@@ -54,3 +57,5 @@ namespace pFactory {
     };
 
 }
+
+#endif

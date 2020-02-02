@@ -8,7 +8,7 @@
 #include "Groups.h"
 
 namespace pFactory{
-
+    
     class Controller {
         public:
             static std::mutex mutex;
@@ -51,5 +51,7 @@ namespace pFactory{
             std::vector<Group*> groups;
             Group* winner;
     };
+
+    
 }
 #endif

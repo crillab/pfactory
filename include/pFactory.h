@@ -1,5 +1,6 @@
 
-
+#ifndef pFactory_H
+#define	pFactory_H
 
 #include <sstream> 
 
@@ -12,19 +13,12 @@
 #include "Intercommunicators.h"
 #include "Safestd.h"
 
+
+
 namespace pFactory{
     
-    
-    std::mutex Controller::mutex;
-    
-    unsigned int getNbCores(){
-        std::ifstream cpuinfo("/proc/cpuinfo");
-        return (!std::thread::hardware_concurrency())?
-        (std::count(std::istream_iterator<std::string>(cpuinfo),
-            std::istream_iterator<std::string>(),
-            std::string("processor"))):
-        std::thread::hardware_concurrency();
-    }
+        
+    unsigned int getNbCores();
 
     template<class T=int>
     class SafeQueue {
@@ -53,3 +47,4 @@ namespace pFactory{
 
 }
 
+#endif

@@ -25,7 +25,6 @@
 #include "Controller.h"
 
 namespace pFactory{
-    
     unsigned int Group::groupCount = 0;
 
     Group::Group(unsigned int pnbThreads):
