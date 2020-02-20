@@ -184,9 +184,8 @@ int main(){
     // A task is represented by a C++11 lambda function 
     group.add([&](){return algorithm(group, false);});
   
-  //By default, a group the lastest tasks added (is set to group.popBack()) 
-  //To calculate firstly the first tasks (in the order of group.add() methods)
-  group.popFront();
+  //By default, a group takes the latest tasks added (is set to group.popBack()) 
+  group.popFront(); //To prioritize the first tasks added (in the order of group.add() methods)
 
   pFactory::Controller controller(group);
   controller.start();// Conquer phase : start the computation of all tasks
@@ -211,8 +210,6 @@ Main author
 Other contributors
  - Gilles Audemard - audemard@cril.fr
  - Jean-Marie Lagniez - jmlagniez@gmail.com
-
-
 
 ## Contact
 Do not hesitate to contact pfactory@cril.fr if you encounter any problems with pFactory.
