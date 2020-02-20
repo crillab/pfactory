@@ -3,13 +3,13 @@
 [![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange)](https://github.com/crillab/pfactory/blob/master/LICENSE)
-[figure]: https://forge.univ-artois.fr/nicolas.szczepanski/pFactory/blob/master/pfactory.png "pfactory"
 
 pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
 parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
 pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
 
-![pfactory][figure]
+![Alt text](pfactory.png?raw=true "pfactory")
+
 
 We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory
 now proposes three principal objects: groups, communicators, and controllers. These objects have been
