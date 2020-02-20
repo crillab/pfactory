@@ -88,7 +88,7 @@ int main(){
   // Add as many tasks as threads in the group
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     group.add([&](){
-        // pFactory::cout() provides a special critical section for displaying information
+          // pFactory::cout() provides a special critical section for displaying information
 	      pFactory::cout() << group.getTask() << " says Hello World" << std::endl;
 	      return 0;
       });
