@@ -4,23 +4,18 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange)](https://github.com/crillab/pfactory/blob/master/LICENSE)
 
-pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
-parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
-pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
+<div style="text-align: justify">
+pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods. pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
+</div>
 
 <p align="center">
 <img src="pfactory.png" alt="drawing" width="800" />
 </p>
 
-We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory now proposes three principal objects: groups, communicators, and controllers (as depicted in the figure). These objects have been designed to be modular and thus, can be operated to design and personalize a broad spectrum of parallel strategies. A group expresses a collection of tasks to be performed by a set of threads (represented by the circles in the figure). Moreover, the user can choose to start a group concurrently, which makes possible the implementation of portfolio based solvers. A controller handles a set of groups and deals with some functionalities (s.t. start, stop, . . . ) on these groups. For example, to wait simultaneously for the end of all tasks, or to activate the concurrent mode on a set of group. A communicator allows sharing information easily between threads. We provide different kinds of communicators, helping to design different sharing mechanism topologies.
-
-
-To make user-friendly the usage of communications, our library contains an object called Communicator<T> using templates.
-Using such object, it is possible to share any kind of informations (vector, int...). A dedicated and powerful algorithms
-to exchange such informations is provided. 
-
-More informations are given in the following paper:
-
+<div style="text-align: justify">
+We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory now proposes three principal objects: groups, communicators, and controllers (as depicted in the figure). These objects have been designed to be modular and thus, can be operated to design and personalize a broad spectrum of parallel strategies. A group expresses a collection of tasks to be performed by a set of threads (represented by the circles in the figure). Moreover, the user can choose to start a group concurrently, which makes possible the implementation of portfolio based solvers. A controller handles a set of groups and deals with some functionalities (s.t. start, stop, . . . ) on these groups. For example, to wait simultaneously for the end of all tasks, or to activate the concurrent mode on a set of group. A communicator allows sharing information easily between threads. We provide different kinds of communicators, helping to design different sharing mechanism topologies. The object called Communicator<T> uses templates. Thus it is possible to share any kind of informations (vector, int...). A dedicated and powerful algorithms to exchange such informations is provided. More informations are given in the following paper:
+</div>
+<br>
 pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019).
 Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
 
