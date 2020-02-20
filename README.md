@@ -12,15 +12,7 @@ pFactory is not related to a specific problem and can very easily be incorporate
 <img src="pfactory.png" alt="drawing" width="800" />
 </p>
 
-We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory
-now proposes three principal objects: groups, communicators, and controllers (as depicted in the figure). These objects have been
-designed to be modular and thus, can be operated to design and personalize a broad spectrum of parallel
-strategies. A group expresses a collection of tasks to be performed by a set of threads
-(represented by the circles in the figure). Moreover, the user can choose to start a group concurrently, which makes possible the
-implementation of portfolio based solvers. A controller handles a set of groups and deals with some functionalities (s.t. start, stop, . . . ) on
-these groups. For example, to wait simultaneously for the end of all tasks, or to activate the concurrent
-mode on a set of group. A communicator allows sharing information easily between threads. We provide different kinds of
-communicators, helping to design different sharing mechanism topologies.
+We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory now proposes three principal objects: groups, communicators, and controllers (as depicted in the figure). These objects have been designed to be modular and thus, can be operated to design and personalize a broad spectrum of parallel strategies. A group expresses a collection of tasks to be performed by a set of threads (represented by the circles in the figure). Moreover, the user can choose to start a group concurrently, which makes possible the implementation of portfolio based solvers. A controller handles a set of groups and deals with some functionalities (s.t. start, stop, . . . ) on these groups. For example, to wait simultaneously for the end of all tasks, or to activate the concurrent mode on a set of group. A communicator allows sharing information easily between threads. We provide different kinds of communicators, helping to design different sharing mechanism topologies.
 
 
 To make user-friendly the usage of communications, our library contains an object called Communicator<T> using templates.
