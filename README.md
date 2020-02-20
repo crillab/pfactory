@@ -51,7 +51,7 @@ An instance of the class group represents:
   - a set of tasks ```std::function<int()>```
 
 Tasks are added thanks to the method ```Group::add(std::function<int()> function)``` 
-using C++11 lambdas and are launched by the method ```Group::start(bool concurrent=false)```. 
+using C++11 lambdas and are launched by the method ```Group::start()```. 
 Of course, we can have more tasks than threads and in this case, a queue of work is 
 created and all tasks are executed. To finish, the method ```Group::wait()```  waits 
 that all tasks are completed (only one if the concurrent mode is activated in the method ```start```) 
@@ -65,7 +65,7 @@ between threads. To this end:
     Variable ```group``` is an  instance of ```Factory::Group``` object defined above. 
 - Send int to other threads using the method ```send(int)```:
 -   Receive integers from other threads. Two methods achieve this task:
-    - using the method ```void recAll(std::vector<int> &data)```. 
+    - using the method ```void recvAll(std::vector<int> &data)```. 
     In this case, the vector data receives all data.
     - using the method ```std::pair<bool, int> recv();```. In this case, one can receive
     data one by one. The first element of the pair becomes true if there is 
@@ -82,24 +82,23 @@ between threads. To this end:
 #include "pFactory.h"
 
 // In this example, we create a group of thread saying hello world
-
-int main()
-{
-  // A group of nbCores threads
+int main(){
+  // A group of nbCores threads 
   pFactory::Group group(pFactory::getNbCores());
-  for (unsigned int i = 0; i < pFactory::getNbCores(); i++)
-  {
-    // Add as many tasks as threads in the group
-    group.add([=]() {
-	      printf("Task %d says hello world\n",i);
-      return 0;
-    });
+  // Add as many tasks as threads in the group
+  for(unsigned int i = 0; i < pFactory::getNbCores();i++){
+    group.add([&](){
+        // pFactory::cout() provides a special critical section for displaying information
+	      pFactory::cout() << group.getTask() << " says Hello World" << std::endl;
+	      return 0;
+      });
   }
   // Start the computation of all tasks
   group.start();
-  // Wait until all threads are performed all tasks
+  // Wait until all threads are performed all tasks 
   group.wait();
 }
+
 ```
 
 
