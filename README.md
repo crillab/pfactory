@@ -106,46 +106,46 @@ int main(){
 
 ```cpp
 #include "pFactory.h"
-#include <mutex>
 
 // In this example, each thread share an integer to the others.
 // The mutex is used only for displaying data in a smart way.
 // Of course, on classical usage, this mutex is useless, you
 // can directly share and receive data
 
-int main()
-{
-    // A group of nbCores threads
+int main() {
+    // A group of nbCores threads 
     pFactory::Group group(pFactory::getNbCores());
-    pFactory::MultipleQueuesCommunicator<int> integerCommunicator(&group);
-    std::mutex m;
-
-    for (unsigned int i = 0; i < pFactory::getNbCores(); i++)
-    {
+    pFactory::Communicator<int> integerCommunicator(group);
+    
+    for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
         // Add as many tasks as threads in the group
-        group.add([&, i]() {
-            // Send a random number
-            m.lock(); // Only to be able to display data in a smart way
-            int nb = rand() % 101;
-            std::cout << "Thread (or task)" << i << " sends: " << nb << std::endl;
-            integerCommunicator.send(nb);
-            m.unlock();
+        group.add([&]() {
+            // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
+            pFactory::cout() << group.getTask() << " sends: " << group.getTask().getId() << std::endl;
+            
+            // group.getThreadId() return the id of a thread that execute this function for a group
+            // group.getTaskId() return the id of this task for a group
+            integerCommunicator.send(group.getTask().getId());
+            
+            // A group has a barrier to wait all tasks at the same moment of the execution 
+            // Here, this barrier is used to wait that all tasks are sent their data 
+            group.barrier.wait();
 
-            //Receive and display all numbers of others threads
+            std::stringstream msg;
+
+            /* With recvAll function */
             std::vector<int> data;
             integerCommunicator.recvAll(data);
-            m.lock(); // Only to be able to display data in a smart way
-            std::cout << "Thread (or task)" << i << " receives:";
-            for (unsigned int j = 0; j < data.size(); ++j)
-                std::cout << data[j] << ' ';
-            std::cout << std::endl;
-            m.unlock();
+            msg << group.getTask() << " receives:";
+            for(unsigned int j = 0; j < data.size(); ++j)
+                msg << data[j] << ' ';
+            pFactory::cout() << msg.str() << std::endl;
             return 0;
         });
     }
     // Start the computation of all tasks
     group.start();
-    // Wait until all threads are performed all tasks
+    // Wait until all threads are performed all tasks 
     group.wait();
 }
 ```
