@@ -1,8 +1,8 @@
 AC_PREREQ(2.59)
-AC_INIT(pFactory, 1.0.1, pfactory@cril.fr)
+AC_INIT(pFactory, 2.0.0, pfactory@cril.fr)
 
 PACKAGE=pFactory
-VERSION=1.0.1
+VERSION=2.0.0
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADER([src/config.h])
@@ -20,5 +20,19 @@ AX_PTHREAD
 LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS -I$PWD/include $PTHREAD_CFLAGS"
 
-AC_OUTPUT(Makefile src/Makefile examples/Makefile examples/helloworld/Makefile examples/communication/Makefile)
+AC_OUTPUT(Makefile)
+AC_OUTPUT(src/Makefile)
+AC_OUTPUT(examples/Makefile)
+AC_OUTPUT(examples/helloworld/Makefile)
+AC_OUTPUT(examples/display/Makefile)
+AC_OUTPUT(examples/communicator/Makefile)
+AC_OUTPUT(examples/restrictedcommunicator/Makefile)
+AC_OUTPUT(examples/intercommunicator/Makefile)
+AC_OUTPUT(examples/barrier/Makefile)
+AC_OUTPUT(examples/staticDC/Makefile)
+AC_OUTPUT(examples/dynamicDC/Makefile)
+AC_OUTPUT(examples/concurrent/Makefile)
+AC_OUTPUT(examples/multipleconcurrents/Makefile)
+
+#AC_OUTPUT(examples/groups/Makefile)
 

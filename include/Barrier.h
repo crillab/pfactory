@@ -18,26 +18,45 @@
 #include <condition_variable>
 #include <mutex>  
 
-#ifndef B_H
-#define	B_H
-
-class Barrier
+#ifndef barrier_H
+#define	barrier_H
+namespace pFactory
 {
-private:
-  std::mutex _mutex;
-  std::condition_variable _cv;
-  std::size_t _count;
-  
-public:
-  explicit Barrier(std::size_t count) : _count(count){ }
-  void wait()
+  class Barrier
   {
-    std::unique_lock<std::mutex> lock{_mutex};
-    if (--_count == 0){
-      _cv.notify_all();
-    }else{
-      _cv.wait(lock,[this] {return _count == 0;});
+  private:
+    std::mutex m;
+    std::condition_variable cv;
+    unsigned int nbThreads;
+    unsigned int tmpNbThreads;
+    unsigned int nbGenerations;
+    
+  public:
+    explicit Barrier(unsigned int p_nbThreads): 
+      nbThreads(p_nbThreads), 
+      tmpNbThreads(p_nbThreads),
+      nbGenerations(0)
+      {}
+
+    ~Barrier(){}
+
+    //Return true if the thread is the last thread to call wait 
+    bool wait()
+    {
+      std::unique_lock<std::mutex> lock{m};
+      unsigned int tmpNbGenerations = nbGenerations;
+      
+      if (--tmpNbThreads==0){
+        nbGenerations++;//This generation is finished
+        tmpNbThreads=nbThreads;//Fix the good number of threads for the next generation
+        cv.notify_all();
+        return true;
+      }
+      //Sleep while the generation has not changed
+      cv.wait(lock,[&tmpNbGenerations,this] {return tmpNbGenerations != nbGenerations;});
+      return false;
     }
-  }
-};
+  };
+}
 #endif
+

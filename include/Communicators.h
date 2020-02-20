@@ -18,9 +18,12 @@
 #ifndef communicators_H
 #define communicators_H
 
+#include <initializer_list>
+
 namespace pFactory
 {
 
+/* Element of a double linked list representing the threads, the position, and their order, within of a std::deque of data */
 class OrderPointer
 {
 public:
@@ -32,44 +35,79 @@ public:
     int idThread;
 };
 
+
 /*
  * To communicate between threads some information by copies.
  */
-template <class T = int>
+template <class T>
 class Communicator
 {
-public:
-    Communicator(Group *g);
-    virtual ~Communicator();
-    virtual void send(T data) = 0;
-    virtual bool recv(T &data, bool &isLast) = 0;
-    virtual bool recv(T &data) = 0;
-    virtual bool isEmpty() = 0;
-    virtual void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true) = 0;
-    virtual void recvAll(std::vector<T> &data) = 0;
-
-    virtual unsigned int getNbSend() = 0;
-    virtual unsigned int getNbRecv() = 0;
-
 protected:
-    Group *group;
-};
+    Group& group; /* Group of threads that have to communicate */ 
+    const unsigned int nbThreads; /* Number of threads */ 
 
-template <class T>
-class MultipleQueuesCommunicator : public Communicator<T>
-{
+    /* Used to know the allowed senders for the communications in the associated group */ 
+    std::vector<bool> senders;
+
+    /* Used to know the allowed receivers for the communications in the associated group */ 
+    std::vector<bool> receivers;
+
+    /* Data to exchange : one std::deque per thread, the ith std::deque is the data sent by the ith thread */
+    std::vector<std::deque<T>> vectorOfQueues; 
+
+    /* One mutex per queue */
+    std::vector<std::mutex> threadMutexs;  
+
+    /* for each std::deque of data, the position of each other thread (to know data already received) */
+    std::vector<std::vector<unsigned int>> threadQueuesPointer; 
+
+    /* for each std::deque of data, to now the order of threads according to theirs positions (OrderPoiter* is a double linked list) */
+    std::vector<std::vector<OrderPointer *>> threadOrdersPointer;
+    
+    /* First element for each std::vector<OrderPointer *> */ 
+    std::vector<OrderPointer *> threadOrdersPointerStart;
+
+    /* Last element for each std::vector<OrderPointer *> */ 
+    std::vector<OrderPointer *> threadOrdersPointerEnd;
+
+    /* For each std::deque, the smallest position of a thread (used to know if a thread is the last to recuperate some data) */
+    std::vector<unsigned int> minQueuesPointer;
+
+    /* For each std::deque, the second smallest position of a thread (so not the smallest :)) */
+    /* Used to know, in the case where one thread is the last to recuperate some data, the limit of these last data */
+    std::vector<unsigned int> minSecondQueuesPointer;
+
+    
+    std::vector<unsigned int> nbSend;
+    std::vector<unsigned int> nbRecv;
+    std::vector<unsigned int> nbRecvAll;
+
+    
 public:
-    MultipleQueuesCommunicator(Group *g);
+    Communicator(Group& g, bool withInitialize=true);
+    Communicator(Group& g, const std::vector<bool>& senders, const std::vector<bool>& receivers, bool withInitialize=true);
+    Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers, bool withInitialize=true);
 
-    ~MultipleQueuesCommunicator();
+    void initialize();
 
+    ~Communicator();
+
+    void createOrderPointer(unsigned int queue, unsigned int lenght);
+    void deleteOrderPointer();
+    void removePointer(unsigned int queue, unsigned int thread);
+
+   
     /*Send a data to others threads
           \param data Data to send
           Warning : user may pass a copŷ
         */
     inline void send(T data)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
+        if (senders[threadId] == false){
+            //printf("Warning: no data sent in a send() operation by a thread of a group that not is in the senders !");
+            return;
+        } 
         threadMutexs[threadId].lock();
         vectorOfQueues[threadId].push_back(data);
         //printf("send data of %d\n",threadId);
@@ -81,7 +119,7 @@ public:
          */
     inline bool isEmpty()
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
             //Browse all queue except the queue of this thread
@@ -97,7 +135,6 @@ public:
         }
         return true;
     }
-
     /* Verify the queue of pointers
     */
     inline void assertQueuePointerCriticalSection(unsigned int threadIdQueue){
@@ -108,13 +145,13 @@ public:
         assert(threadOrdersPointerEnd[threadIdQueue]->previous != NULL);
     }
 
+
     /*  Update the ordersPointer (put the current thread in the end of the queue) 
         Usefull to calculate the minimum and the second minimum faster
     */
     inline void updateOrdersPointer(std::vector<OrderPointer *> &ordersPointer, unsigned int threadIdQueue, unsigned int threadId){
         ordersPointer[threadId]->next->previous = ordersPointer[threadId]->previous; //Removing in the queue
         ordersPointer[threadId]->previous->next = ordersPointer[threadId]->next;     //Removing in the queue
-
         ordersPointer[threadId]->next = threadOrdersPointerEnd[threadIdQueue];               //Push back in the queue
         ordersPointer[threadId]->previous = threadOrdersPointerEnd[threadIdQueue]->previous; //Push back in the queue
         threadOrdersPointerEnd[threadIdQueue]->previous->next = ordersPointer[threadId];     //Push back in the queue
@@ -155,11 +192,13 @@ public:
         */
     inline void recvAll(std::vector<T> &dataNotLast, std::vector<T> &dataLast, bool withDataLast = true)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
+        if (!receivers[threadId]) return; //If this thread is not a receiver, do nothing !
+
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
-            //Browse all queue except the queue of this thread
-            if (threadIdQueue != threadId)
+            //Browse all queues except the queue of this thread and the queues from threads that are not a sender
+            if (threadIdQueue != threadId && senders[threadIdQueue])
             {
 
                 //These adresses don't move, so no mutex here !
@@ -190,7 +229,7 @@ public:
 
                     //Recuperate clauses that I have to no copy : it is the dataLast thread that take these clauses
                     if (minQueuePointer == queuePointer[threadId])
-                    { //I am a minumum : there are may be dataLast clauses with no copy
+                    { //I am a minumum : there are may be dataLast clauses with no copy (this thread is at the smallest position)
                         while (queuePointer[threadId] != minSecondQueuePointer)
                         { // warning, that can be equals (severals minimums equals)!
                             dataLast.push_back(deque[queuePointer[threadId]++]);
@@ -236,7 +275,7 @@ public:
         */
     inline bool recv(T &data, bool &isLast)
     {
-        const unsigned int threadId = this->group->getThreadId();
+        const unsigned int threadId = group.getThreadId();
         for (unsigned int threadIdQueue = 0; threadIdQueue < nbThreads; threadIdQueue++)
         {
             //Browse all queue except the queue of this thread
@@ -292,7 +331,6 @@ public:
         }
         return ret;
     };
-
     inline unsigned int getNbRecv()
     {
         unsigned int ret = 0;
@@ -305,83 +343,112 @@ public:
         return ret;
     };
 
-private:
-    const unsigned int nbThreads;
-    std::vector<std::mutex> threadMutexs;
-
-    std::vector<std::deque<T>> vectorOfQueues;
-    std::vector<std::vector<unsigned int>> threadQueuesPointer;
-    std::vector<std::vector<OrderPointer *>> threadOrdersPointer;
-    std::vector<OrderPointer *> threadOrdersPointerStart;
-    std::vector<OrderPointer *> threadOrdersPointerEnd;
-
-    std::vector<unsigned int> minQueuesPointer;
-    std::vector<unsigned int> minSecondQueuesPointer;
-
-    std::vector<unsigned int> nbSend;
-    std::vector<unsigned int> nbRecv;
-    std::vector<unsigned int> nbRecvAll;
-
 };
 
-template <class T>
-Communicator<T>::Communicator(Group *g) : group(g){};
 
 template <class T>
-Communicator<T>::~Communicator() {}
-
-template <class T>
-MultipleQueuesCommunicator<T>::MultipleQueuesCommunicator(Group *g)
-    : Communicator<T>(g),
-      nbThreads(g->getNbThreads()),
-      threadMutexs(g->getNbThreads()),
-      vectorOfQueues(g->getNbThreads()),
-
-      threadQueuesPointer(g->getNbThreads(), std::vector<unsigned int>(g->getNbThreads())),
-      threadOrdersPointer(g->getNbThreads(), std::vector<OrderPointer *>(g->getNbThreads(), NULL)),
-      threadOrdersPointerStart(g->getNbThreads(), NULL),
-      threadOrdersPointerEnd(g->getNbThreads(), NULL),
-
-      minQueuesPointer(g->getNbThreads()),
-      minSecondQueuesPointer(g->getNbThreads()),
-
-      nbSend(g->getNbThreads()),
-      nbRecv(g->getNbThreads()),
-      nbRecvAll(g->getNbThreads())
+Communicator<T>::Communicator(Group& g, std::initializer_list<unsigned int> p_senders, std::initializer_list<unsigned int> p_receivers, bool withInitialize)
+    : Communicator<T>::Communicator(g, false)
 {
+    for (unsigned int i = 0; i < senders.size(); i++)senders[i] = false;
+    for (unsigned int x : p_senders)senders[x] = true;
+    for (unsigned int i = 0; i < receivers.size(); i++)receivers[i] = false;
+    for (unsigned int x : p_receivers)receivers[x] = true;    
+    if (withInitialize == true) initialize();  
+}
 
+template <class T>
+Communicator<T>::Communicator(Group& g, const std::vector<bool>& p_senders, const std::vector<bool>& p_receivers, bool withInitialize)
+    : Communicator<T>::Communicator(g, false)
+{
+    senders = p_senders;
+    receivers = p_receivers;
+    if (withInitialize == true) initialize();
+}
+
+
+
+
+
+template <class T>
+Communicator<T>::Communicator(Group& g, bool withInitialize)
+    : group(g),
+      nbThreads(g.getNbThreads()),
+      
+      senders(std::vector<bool>(nbThreads, true)),
+      receivers(std::vector<bool>(nbThreads, true)),
+      
+      vectorOfQueues(nbThreads),
+      threadMutexs(nbThreads),
+      threadQueuesPointer(nbThreads, std::vector<unsigned int>(nbThreads)),
+      threadOrdersPointer(nbThreads, std::vector<OrderPointer *>(nbThreads, NULL)),
+      threadOrdersPointerStart(nbThreads, NULL),
+      threadOrdersPointerEnd(nbThreads, NULL),
+
+      minQueuesPointer(nbThreads),
+      minSecondQueuesPointer(nbThreads),
+
+      nbSend(nbThreads),
+      nbRecv(nbThreads),
+      nbRecvAll(nbThreads)
+{
+    if (withInitialize == true) initialize();
+}
+
+/* To delete a pointer (swap and delete)*/
+template <class T>
+void Communicator<T>::removePointer(unsigned int queue, unsigned int thread){
+    threadOrdersPointer[queue][thread]->next->previous = threadOrdersPointer[queue][thread]->previous;
+    threadOrdersPointer[queue][thread]->previous->next = threadOrdersPointer[queue][thread]->next;
+    delete threadOrdersPointer[queue][thread];
+    threadOrdersPointer[queue][thread] = NULL;
+}
+
+/* To initialize the double linked list OrderPointer */
+template <class T>
+void Communicator<T>::createOrderPointer(unsigned int queue, unsigned int lenght){
+    std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[queue];
+    //Create OrderPointers 
+    threadOrdersPointerStart[queue] = new OrderPointer();
+    for (unsigned int j = 0; j < lenght; j++)
+        ordersPointer[j] = new OrderPointer(j);
+    threadOrdersPointerEnd[queue] = new OrderPointer();
+    //Set the next pointers
+    threadOrdersPointerStart[queue]->next = ordersPointer[0];
+    for (unsigned int j = 0; j < lenght - 1; j++)
+        ordersPointer[j]->next = ordersPointer[j + 1];
+    ordersPointer[lenght - 1]->next = threadOrdersPointerEnd[queue];
+
+    //Set the previous pointers
+    threadOrdersPointerEnd[queue]->previous = ordersPointer[lenght - 1];
+    for (unsigned int j = lenght - 1; j > 0; j--)
+        ordersPointer[j]->previous = ordersPointer[j - 1];
+    ordersPointer[0]->previous = threadOrdersPointerStart[queue];
+}
+
+template <class T>
+void Communicator<T>::initialize(){
     for (unsigned int i = 0; i < nbThreads; i++)
     {
-        std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[i];
-        //Create OrderPointers and set the idThread
-        threadOrdersPointerStart[i] = new OrderPointer();
-        for (unsigned int j = 0; j < nbThreads; j++)
-            ordersPointer[j] = new OrderPointer(j);
-        threadOrdersPointerEnd[i] = new OrderPointer();
+        if (senders[i]){ //Only if i is a sender thread !
+            //Create OrderPointers
+            createOrderPointer(i, nbThreads);
 
-        //Set the next pointers
-        threadOrdersPointerStart[i]->next = ordersPointer[0];
-        for (unsigned int j = 0; j < nbThreads - 1; j++)
-            ordersPointer[j]->next = ordersPointer[j + 1];
-        ordersPointer[nbThreads - 1]->next = threadOrdersPointerEnd[i];
+            //The ith queue do not need a pointer of itself
+            removePointer(i, i);
 
-        //Set the previous pointers
-        threadOrdersPointerEnd[i]->previous = ordersPointer[nbThreads - 1];
-        for (unsigned int j = nbThreads - 1; j > 0; j--)
-            ordersPointer[j]->previous = ordersPointer[j - 1];
-        ordersPointer[0]->previous = threadOrdersPointerStart[i];
-
-        //Delete the current pointer (swap and delete)
-        ordersPointer[i]->next->previous = ordersPointer[i]->previous;
-        ordersPointer[i]->previous->next = ordersPointer[i]->next;
-        delete ordersPointer[i];
-        ordersPointer[i] = NULL;
+            //Delete the non-receivers pointer
+            for (unsigned int j = 0; j < nbThreads; j++){
+                if (!receivers[j] && j != i){
+                    removePointer(i, j);
+                }
+            }
+        }
     }
-};
+}
 
 template <class T>
-MultipleQueuesCommunicator<T>::~MultipleQueuesCommunicator()
-{
+void Communicator<T>::deleteOrderPointer(){
     for (unsigned int i = 0; i < nbThreads; i++)
     {
         std::vector<OrderPointer *> &ordersPointer = threadOrdersPointer[i];
@@ -390,6 +457,12 @@ MultipleQueuesCommunicator<T>::~MultipleQueuesCommunicator()
             delete ordersPointer[j];
         delete threadOrdersPointerEnd[i];
     }
+} 
+
+template <class T>
+Communicator<T>::~Communicator()
+{
+    deleteOrderPointer();
 }
 } // namespace pFactory
 

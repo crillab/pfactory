@@ -22,19 +22,33 @@
 
 int main(){
   // A group of nbCores threads 
-  pFactory::Group group(pFactory::getNbCores());
+  pFactory::Group groupWrongDisplay(pFactory::getNbCores());
+  pFactory::Group groupRightDisplay(pFactory::getNbCores());
+  
   // Add as many tasks as threads in the group
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     // A task is represented by a C++11 lambda function 
     // The capture list [i, &group] meaning that i (resp. group) is captured by value (resp. by reference)  
-    group.add([&](){
+    groupWrongDisplay.add([&](){
         // pFactory::cout() provides a special critical section for displaying information
-	      pFactory::cout() << group.getTask() << " says Hello World" << std::endl;
+	      std::cout << groupWrongDisplay.getTask() << " says Hello World on stdout:" << std::endl;
+	      std::cerr <<  groupWrongDisplay.getTask() << " says Hello World on stderr!" << std::endl;
+        return 0;
+      });
+    
+    groupRightDisplay.add([&](){
+        // pFactory::cout() provides a special critical section for displaying information
+	      pFactory::cout() << groupRightDisplay.getTask() << " says Hello World on stdout!" << std::endl;
+	      pFactory::cerr() << groupRightDisplay.getTask() << " says Hello World on stderr!" << std::endl;
 	      return 0;
       });
   }
-  // Start the computation of all tasks
-  group.start();
-  // Wait until all threads are performed all tasks 
-  group.wait();
+
+  pFactory::cout() << std::endl << "Without pFactory::cout():" << std::endl;
+  groupWrongDisplay.start();
+  groupWrongDisplay.wait();
+
+  pFactory::cout() << std::endl << "With pFactory::cout():" << std::endl;
+  groupRightDisplay.start();
+  groupRightDisplay.wait();
 }
