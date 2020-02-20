@@ -3,10 +3,19 @@
 [![Build Status](https://api.travis-ci.org/crillab/pfactory.svg?branch=master)](https://travis-ci.org/crillab/pfactory)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=crillab_pFactory&metric=alert_status)](https://sonarcloud.io/dashboard?id=crillab_pFactory)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange)](https://github.com/crillab/pfactory/blob/master/LICENSE)
+[figure]: https://github.com/crillab/pfactory/pfactory.png "pfactory"
 
 pFactory is a parallel library designed to support and facilitate the implementation of parallel solvers in C++. It provides robust implementations of
 parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
 pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
+
+![pfactory][figure]
+
+We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory
+now proposes three principal objects: groups, communicators, and controllers. These objects have been
+designed to be modular and thus, can be operated to design and personalize a broad spectrum of parallel
+strategies.
+
 
 To make user-friendly the usage of communications, our library contains an object called Communicator<T> using templates.
 Using such object, it is possible to share any kind of informations (vector, int...). A dedicated and powerful algorithms
@@ -14,7 +23,7 @@ to exchange such informations is provided.
 
 More informations are given in the following paper:
 
-pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019), To appear.
+pFactory: A generic library for designing parallel solvers, the 16th International Conference on Applied Computing (AC 2019).
 Gilles Audemard, Gael Glorian, Jean-Marie Lagniez, Valentin Montmirail and Nicolas Szczepanski
 
 
@@ -150,6 +159,7 @@ int main()
 ```
 
 ### Example 3
+
 You can also [download](http://www.cril.univ-artois.fr/~audemard/pfactory-glucose.tgz) an implementation of the [SAT solver glucose](https://www.labri.fr/perso/lsimon/glucose/) in parallel mode (aka named syrup)
 using the library pFactory. Such implementation integrates clauses sharing mechanism.
 
