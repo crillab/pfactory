@@ -67,12 +67,6 @@ int main(){
   controller.concurrent(); //Concurrency of groups (the first group to finish its calculation stop all others groups)
   controller.wait();
 
-  // Display the return codes (pFactory keeps the good return code of each task)
-  // >=0 : Tasks finished
-  // -1 : Tasks not started 
-  // -2 : Task that has stopped the calculation
-  // -3 : Tasks that have were stopped during their calculation 
-
   for (unsigned int i = 0;i < nbGroups;i++){
     for (auto task: groups[i].getTasks())
       std::cout << "[Group " << groups[i].getId() << "]" << task << std::endl;

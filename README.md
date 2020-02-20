@@ -108,9 +108,6 @@ int main(){
 #include "pFactory.h"
 
 // In this example, each thread share an integer to the others.
-// The mutex is used only for displaying data in a smart way.
-// Of course, on classical usage, this mutex is useless, you
-// can directly share and receive data
 
 int main() {
     // A group of nbCores threads 
@@ -120,20 +117,17 @@ int main() {
     for(unsigned int i = 0; i < pFactory::getNbCores(); i++) {
         // Add as many tasks as threads in the group
         group.add([&]() {
-            // pFactory::cout() provides a special critical section for displaying information in a smart way on the console
+            // group.getTask() return the task in progress 
             pFactory::cout() << group.getTask() << " sends: " << group.getTask().getId() << std::endl;
             
-            // group.getThreadId() return the id of a thread that execute this function for a group
-            // group.getTaskId() return the id of this task for a group
             integerCommunicator.send(group.getTask().getId());
             
             // A group has a barrier to wait all tasks at the same moment of the execution 
             // Here, this barrier is used to wait that all tasks are sent their data 
             group.barrier.wait();
 
-            std::stringstream msg;
-
             /* With recvAll function */
+            std::stringstream msg;
             std::vector<int> data;
             integerCommunicator.recvAll(data);
             msg << group.getTask() << " receives:";
@@ -151,6 +145,58 @@ int main() {
 ```
 
 ### Example 3
+
+```cpp
+#include "pFactory.h"
+
+// In this example, we create a group of threads with a lot of tasks.
+// It is a model for a dynamic divide and conquer (DC) strategy.
+// Firstly create tasks that represent subproblems (divide phase) and next calculate all theses tasks (conquer phase) 
+// In addition, some others tasks can be added during the conquer phase (thus called dynamic)
+
+int algorithm(pFactory::Group& group, bool dynamic){
+  // To simulate the task calculation
+  for(unsigned int j = 0; j < 100;j++){ 
+    if (group.isStopped()){
+      group.getTask().setDescription("stopped during its computation");
+      return (int)group.getTask().getId();
+    } // To stop this task during its calculation if the group have to be stopped
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+
+  // Dynamic divide phase
+  if (group.getTask().getId() < nbTasks)
+    group.add([&](){return algorithm(group, true);});
+  
+  // The return code of the task that has finished 
+  
+  group.getTask().setDescription(dynamic == true? "dynamic expected end": "static expected end");
+  pFactory::cout() << group.getTask() << std::endl;
+  return (int)group.getTask().getId();
+}
+
+int main(){
+  // A group of nbCores threads 
+  pFactory::Group group(pFactory::getNbCores());
+
+  // First divide phase : add firstly 20 tasks  
+  for(unsigned int i = 0; i < 20;i++)
+    // A task is represented by a C++11 lambda function 
+    group.add([&](){return algorithm(group, false);});
+  
+  //By default, a group the lastest tasks added (is set to group.popBack()) 
+  //To calculate firstly the first tasks (in the order of group.add() methods)
+  group.popFront();
+
+  pFactory::Controller controller(group);
+  controller.start();// Conquer phase : start the computation of all tasks
+  controller.wait();// Wait until all threads are performed all tasks 
+
+  for(auto &task: group.getTasks()) std::cout << task << std::endl;  
+}
+```
+
+### Example 4
 
 You can also [download](http://www.cril.univ-artois.fr/~audemard/pfactory-glucose.tgz) an implementation of the [SAT solver glucose](https://www.labri.fr/perso/lsimon/glucose/) in parallel mode (aka named syrup)
 using the library pFactory. Such implementation integrates clauses sharing mechanism.
