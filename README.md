@@ -8,7 +8,7 @@ pFactory is a parallel library designed to support and facilitate the implementa
 parallel algorithms and allows seamlessly sharing mechanisms, divide-and-conquer or portfolio methods.
 pFactory is not related to a specific problem and can very easily be incorporated in order to solve any kind of combinatorial problem (SAT, CSP, MAXSAT...).
 
-![Alt text](pfactory.png?raw=true "pfactory")
+![Alt text](pfactory.png?raw=true "pfactory" | width=100)
 
 
 We aim to produce a tool that is accessible while remaining efficient and without being intrusive. To address this challenge, pFactory
