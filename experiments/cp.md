@@ -1,3 +1,5 @@
+## CP experiments
+
 We choose to parallelize Cococo, a CP solver.%
 This solver is written in C++ (which is required to be used
 with \library) and it participated to the last XCSP

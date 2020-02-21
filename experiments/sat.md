@@ -1,3 +1,5 @@
+## SAT experiments
+
 Experiments were run on the following architecture.
 Each processor has 20 cores at 2.4 GHz, making 80 cores
 available per solver per instance.
@@ -31,12 +33,12 @@ all the parallel solvers implemented in this paper are based on the same sequent
  
  
  
-We also provide an apple-to-apple comparison between //FACTORY-GLUCOSE 
+We also provide an apple-to-apple comparison between pFACTORY-GLUCOSE 
 against SYRUP  and PAINLESS-GLUCOSE. 
 The scatter plots show that our solver is generally faster than the two others. 
 Particularly, the cumulated solving time for the instances that are solved by all solvers are, 
-respectively, for PAINLESS-GLUCOSE, SYRUP, and //FACTORY-GLUCOSE, 4h47m, 3h29m, and 2h48m for the SAT’15 instances, 
-and, 10h34m, 10h01m, and 7h05m for SAT’18 ones. Regarding //FACTORY-GLUCOSE, it is comparable to a gain of 20% (resp.29%) 
+respectively, for PAINLESS-GLUCOSE, SYRUP, and pFACTORY-GLUCOSE, 4h47m, 3h29m, and 2h48m for the SAT’15 instances, 
+and, 10h34m, 10h01m, and 7h05m for SAT’18 ones. Regarding pFACTORY-GLUCOSE, it is comparable to a gain of 20% (resp.29%) 
 versus SYRUP and 41% (resp. 33%) versus PAINLESS-GLUCOSE on the SAT’15 (resp. SAT’18) instances. 
  
  ![scatter](scatterplot-sat.png "scatter plot") 
