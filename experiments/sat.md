@@ -20,13 +20,14 @@ all the parallel solvers implemented in this paper are based on the same sequent
  The following table highlights the results achieved by the different approaches we considered. 
  As we can see, on the set of problems considered, //FACTORY-GLUCOSE clearly outperforms SYRUP and PAINLESS- GLUCOSE. 
  
- |                  |     | 2015  |       |     | 2018  |       |
- |------------------|-----|-------|-------|-----|-------|-------|
- |                  | SAT | UNSAT | TOTAL | SAT | UNSAT | TOTAL |
- | Glucose          | 9   | 6     | 15    | 67  | 66    | 133   |
- | Painless-Glucose | 42  | 32    | 74    | 141 | 99    | 240   |
- | Syrup            | 43  | 32    | 75    | 141 | 114   | 255   |
- | pFactory-Glucose | 49  | 32    | 81    | 149 | 114   | 263   |
+ 
+|                  |     | 2015  |       |     | 2018  |       |
+|------------------|-----|-------|-------|-----|-------|-------|
+|                  | SAT | UNSAT | TOTAL | SAT | UNSAT | TOTAL |
+| Glucose          | 9   | 6     | 15    | 67  | 66    | 133   |
+| Painless-Glucose | 42  | 32    | 74    | 141 | 99    | 240   |
+| Syrup            | 43  | 32    | 75    | 141 | 114   | 255   |
+| pFactory-Glucose | 49  | 32    | 81    | 149 | 114   | 263   |
  
  
  
