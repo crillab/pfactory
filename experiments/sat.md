@@ -5,7 +5,7 @@ Each processor has 20 cores at 2.4 GHz, making 80 cores
 available per solver per instance.
 The runtime limit was set to 900 seconds for each instance and the
 memory limit was set to 768 GB.
-Logs are available at [https://bit.ly/2W6WqJr](https://bit.ly/2W6WqJr).
+Logs are available [here](https://www.dropbox.com/sh/omg2unnc27jx48j/AADqJXkbrDIeHGOsbr9pDEbna?dl=0).
  Besides the 100 instances of the parallel track of the 2015 SAT competition, we also considered 
  400  benchmarks originating from the application track of the 2018 SAT competition. 
 
