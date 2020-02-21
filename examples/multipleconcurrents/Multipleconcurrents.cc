@@ -17,15 +17,26 @@
  */
 
 #include "pFactory.h"
-#include <experimental/random>
 
 const static int TASK_STOPPED = -3;
+
+void swap_int(int* a, int* b){ int tmp = *a; *a=*b; *b=tmp; }
+
+inline int randint_(int upper, int lower){
+  return((rand() % (upper-lower+1)) + lower);
+}
+
+int randint(int a,int b)
+{
+    if (b > a) swap_int(&a,&b);
+    return randint_(a,b);
+}
 
 void createTask(pFactory::Group& group, unsigned int randomWinnerGroup, unsigned int randomWinnerTask){
   // A task is represented by a C++11 lambda function 
   group.add([randomWinnerGroup, randomWinnerTask, &group](){
       // To simulate the task calculation according to the tasks id
-      unsigned int randomNumber = std::experimental::randint(0, (int)group.getTask().getId()-1);
+      unsigned int randomNumber = randint(0, (int)group.getTask().getId()-1);
       unsigned int nbLoops = group.getTask().getId() == randomWinnerTask and group.getId() == randomWinnerGroup?1000:1010+randomNumber;
       for(unsigned int j = 0; j < nbLoops;j++){ 
         if (group.isStopped()){ 
@@ -52,8 +63,8 @@ int main(){
   std::vector<pFactory::Group> groups(nbGroups, pFactory::Group(nbTasksPerGroup)); //Mupliple groups
   std::cout << "Example of mutliple groups in concurrence with " << nbGroups << " groups of " << nbTasksPerGroup << " tasks" << std::endl;
 
-  unsigned int randomWinnerGroup = std::experimental::randint(0, (int)nbGroups-1);
-  unsigned int randomWinnerTask = std::experimental::randint(0, (int)nbTasksPerGroup-1);
+  unsigned int randomWinnerGroup = randint(0, (int)nbGroups-1);
+  unsigned int randomWinnerTask = randint(0, (int)nbTasksPerGroup-1);
   std::cout << "Random winner will be (but maybe not) the task " << randomWinnerTask << " of the group " << randomWinnerGroup << std::endl;
   
   for (unsigned int i = 0;i < nbGroups;i++){
