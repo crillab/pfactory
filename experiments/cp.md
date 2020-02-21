@@ -1,8 +1,8 @@
 ## CP experiments
 
-We choose to parallelize Cococo, a CP solver.%
+We choose to parallelize Cococo, a CP solver.
 This solver is written in C++ (which is required to be used
-with \library) and it participated to the last XCSP
+with pFactory) and it participated to the last XCSP
 competitions.
 Experiments were run on the instances of the XCSP'18 competition and a
 computer containing 4 Xeon processors. Benchmarks as well

@@ -20,7 +20,7 @@ all the parallel solvers implemented in this paper are based on the same sequent
  
  
  The following table highlights the results achieved by the different approaches we considered. 
- As we can see, on the set of problems considered, //FACTORY-GLUCOSE clearly outperforms SYRUP and PAINLESS- GLUCOSE. 
+ As we can see, on the set of problems considered, pFACTORY-GLUCOSE clearly outperforms SYRUP and PAINLESS- GLUCOSE. 
  
  
 |                  |     | 2015  |       |     | 2018  |       |
