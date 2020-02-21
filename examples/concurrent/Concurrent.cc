@@ -17,16 +17,27 @@
  */
 
 #include "pFactory.h"
-#include <experimental/random>
 
 // In this example, we create a group of thread with as many tasks as threads in the group
 // It is a model for a concurrent strategy. All tasks are stopped as soon as the first task is finished (the winner).
+
+void swap_int(int* a, int* b){ int tmp = *a; *a=*b; *b=tmp; }
+
+inline int randint_(int upper, int lower){
+  return((rand() % (upper-lower+1)) + lower);
+}
+
+int randint(int a,int b)
+{
+  if (b > a) swap_int(&a,&b);
+  return randint_(a,b);
+}
 
 int main(){
   // A group of nbCores threads 
   pFactory::Group group(pFactory::getNbCores());
   
-  unsigned int randomWinner = std::experimental::randint(0, (int)pFactory::getNbCores()-1);
+  unsigned int randomWinner = randint(0, (int)pFactory::getNbCores()-1);
   std::cout << "Random winner will be the task " << randomWinner << std::endl;
   for(unsigned int i = 0; i < pFactory::getNbCores();i++){
     // A task is represented by a C++11 lambda function 
