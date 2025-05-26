@@ -19,7 +19,8 @@
 #define communicators_H
 
 #include <initializer_list>
-
+#include <mutex>
+#include "Groups.h"
 namespace pFactory
 {
 

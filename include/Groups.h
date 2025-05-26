@@ -46,7 +46,7 @@
 
 namespace pFactory {
     class Controller;
-    const int VERBOSE = 0;
+    const int VERBOSE = 1;
 
     
     /* An instance of the class group represent :
